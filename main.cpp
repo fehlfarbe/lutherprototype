@@ -1,3 +1,4 @@
+#include <sstream>
 #include <iostream>
 #include <sys/time.h>
 
@@ -9,6 +10,12 @@
 
 using namespace std;
 using namespace cv;
+
+
+// options
+bool bgSub = false;
+bool writeIM = true;
+const char* writeDst = "output/";
 
 int main()
 {
@@ -22,31 +29,45 @@ int main()
     }
 
 
+    int count = 0;
     Mat frame, output;
     cap.read(frame);
 
     Facedetector detector = Facedetector();
-    detector.bgSubtraction = false;
+    detector.bgSubtraction = bgSub;
 
-    if(!detector.loadFrontCascade("../lbpcascade_frontalface.xml")){
+    if(!detector.loadFrontCascade("lbpcascade_frontalface.xml")){
         cout << "Can't load cascade file";
         return -1;
     }
-    if(!detector.loadProfileCascade("../lbpcascade_profileface.xml")){
+    if(!detector.loadProfileCascade("lbpcascade_profileface.xml")){
         cout << "Can't load cascade file";
         return -1;
     }
 
     while(!frame.empty()){
+        count++;
         clock_t t = clock();
         output = detector.detect(frame);
         vector<Face> faces = detector.getFaces();
 
+        //Ouput Window
+        float fps = 1.0f / ((float(clock()-t)/CLOCKS_PER_SEC));
+        ostringstream stream;
+        stream << faces.size() << " Faces detected (" << fps << " fps)";
+        putText(output, stream.str(), Point(5, output.rows-10), 1, 1, Scalar(255, 255, 255));
         imshow("Output", output);
         waitKey(1);
 
-        cout << faces.size() << " faces ";
-        cout << "(" << 1.0 / ((float(clock()-t)/CLOCKS_PER_SEC)) << "fps)" << endl;
+        //write images
+        if(writeIM){
+            ostringstream filename;
+            filename << writeDst << "/" << count << ".jpg";
+            imwrite(filename.str(), output);
+        }
+
+        //cout << faces.size() << " faces ";
+        //cout << "(" << 1.0 / ((float(clock()-t)/CLOCKS_PER_SEC)) << "fps)" << endl;
 
         cap.read(frame);
     }

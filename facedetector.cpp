@@ -82,43 +82,10 @@ Mat Facedetector::detect(Mat& frame){
     //face detection
     vector<Rect> rects;
     mFrontCascade.detectMultiScale(frame_gray, rects, 1.1, 12, 0|CV_HAAR_SCALE_IMAGE, Size(24, 24), Size(200, 200));
-
-    //rects to faces
-    for(unsigned int i=0; i<rects.size(); i++){
-
-        bool add = true;
-        for(unsigned j=0; j<mFaces.size(); j++){
-            if( mFaces[j].isSimilar(rects[i])){
-                mFaces[j].update(rects[i], distance(rects[i]), frame_gray);
-                add = false;
-                break;
-            }
-        }
-
-        if( add ){
-            mFaces.push_back(Face(rects[i], distance(rects[i]), frame_gray));
-        }
-    }
-
+    addFaces(rects, frame_gray, Face::FRONT);
     rects.clear();
     mProfileCascade.detectMultiScale(frame_gray, rects, 1.1, 12, 0|CV_HAAR_SCALE_IMAGE, Size(34, 20), Size(200, 200));
-
-    //rects to faces
-    for(unsigned int i=0; i<rects.size(); i++){
-
-        bool add = true;
-        for(unsigned j=0; j<mFaces.size(); j++){
-            if( mFaces[j].isSimilar(rects[i])){
-                mFaces[j].update(rects[i], distance(rects[i]), frame_gray);
-                add = false;
-                break;
-            }
-        }
-
-        if( add ){
-            mFaces.push_back(Face(rects[i], distance(rects[i]), frame_gray, Face::PROFILE));
-        }
-    }
+    addFaces(rects, frame_gray, Face::PROFILE);
 
     //draw faces
     drawFaces(frame_resized);
@@ -146,7 +113,7 @@ vector<Face> Facedetector::getFaces(){
 void Facedetector::drawFaces(Mat& frame){
 
     for( size_t i = 0; i < mFaces.size(); i++ ){
-        mFaces[i].draw(frame);
+        mFaces[i].draw(frame, distance(mFaces[i].rect()));
     }
 
 }
@@ -158,4 +125,23 @@ Face::FaceDistance Facedetector::distance(Rect r){
         return Face::MIDDLE;
     else
         return Face::NEAR;
+}
+
+void Facedetector::addFaces(vector<Rect> rects, Mat& frame, Face::FaceType type){
+
+    for(unsigned int i=0; i<rects.size(); i++){
+
+        bool add = true;
+        for(unsigned j=0; j<mFaces.size(); j++){
+            if( mFaces[j].isSimilar(rects[i])){
+                mFaces[j].update(rects[i], frame, type);
+                add = false;
+                break;
+            }
+        }
+
+        if( add ){
+            mFaces.push_back(Face(rects[i], frame, type));
+        }
+    }
 }

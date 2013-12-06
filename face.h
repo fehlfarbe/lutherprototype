@@ -14,18 +14,20 @@ using namespace std;
 class Face
 {
 public:
-    enum FaceDistance { FAR, MIDDLE, NEAR };
+    enum FaceDistance { FAR, MIDDLE, NEAR, UNKNOWN };
     enum FaceType { FRONT, PROFILE };
 
-    Face(Rect r, Face::FaceDistance dist, Mat& frame, Face::FaceType type = FRONT);
+    Face(Rect r, Mat& frame, Face::FaceType type = FRONT);
 
-    FaceDistance distance();
+    //FaceDistance distance();
     Point position();
     Rect rect();
 
-    void draw(Mat& frame, bool features = true);
-    void update(Rect r, Face::FaceDistance dist, Mat& frame, Face::FaceType type = FRONT);
+    void draw(Mat& frame, FaceDistance dist = UNKNOWN, bool features = true);
+    void update(Rect r, Mat& frame, Face::FaceType type = FRONT);
 
+    int middleDistance = 0;
+    int nearDistance = 0;
     bool isSimilar(Rect r);
     bool track(Mat& prev, Mat &curr);
     void show(int ms = 10);
@@ -35,12 +37,11 @@ public:
 private:
 
     Rect mRect;
-    FaceDistance mDistance;
     FaceType     mType;
 
     //tracking
-    Size subPixWinSize = Size(2,2);
-    Size winSize = Size(10,10);
+    Size subPixWinSize = Size(5,5);
+    Size winSize = Size(11,11);
     TermCriteria termcrit = TermCriteria(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS, 20, 0.03);
     vector<Point2f> mTrackPoints;
     Point2f mMotionVector;

@@ -33,13 +33,14 @@ public:
     bool bgSubtraction = true;
     Size detectionSize = Size(640, 480);
     int middleArea = 50;
-    int nearArea = 90;
+    int nearArea = 86;
 
 
 private:
 
     void drawFaces(Mat& frame);
     Mat subtractBG(Mat& frame);
+    void addFaces(vector<Rect> rects, Mat& frame, Face::FaceType type);
     Face::FaceDistance distance(Rect r);
 
     // **** Member **** //

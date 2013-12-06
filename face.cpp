@@ -1,11 +1,11 @@
 #include "face.h"
 
-Face::Face(Rect r, FaceDistance dist, Mat &frame, FaceType type)
+Face::Face(Rect r, Mat &frame, FaceType type)
 {
-    update(r, dist, frame);
+    update(r, frame, type);
 }
 
-void Face::update(Rect r, Face::FaceDistance dist, Mat& frame, FaceType type){
+void Face::update(Rect r, Mat& frame, FaceType type){
 
     if( mRect.area() == 0){
         mRect = r;
@@ -15,16 +15,14 @@ void Face::update(Rect r, Face::FaceDistance dist, Mat& frame, FaceType type){
         mRect = r;
     }
 
-
-    mDistance = dist;
     mType = type;
 
     Mat mask(frame.size(), CV_8UC1);
     mask.setTo(Scalar::all(0));
-    rectangle(mask, r, Scalar(255,255,255));
+    rectangle(mask, r, Scalar(255,255,255), -1);
 
     mTrackPoints.clear();
-    goodFeaturesToTrack(frame, mTrackPoints, 500, 0.001, 2, mask, 3, 0, 0.04);
+    goodFeaturesToTrack(frame, mTrackPoints, 100, 0.01, 5, mask, 3, 0, 0.04);
     //if( mTrackPoints.size() > 0)
     //    cornerSubPix(frame, mTrackPoints, subPixWinSize, Size(-1,-1), termcrit);
 }
@@ -75,18 +73,14 @@ bool Face::track(Mat& prev, Mat& curr){
 
 
     //cout << mTrackPoints.size() << endl;
-    Rect brect = boundingRect(mTrackPoints);
-    mRect.x = brect.x;
-    mRect.y = brect.y;
+//    Rect brect = boundingRect(mTrackPoints);
+//    mRect.x = brect.x;
+//    mRect.y = brect.y;
+    mRect = boundingRect(mTrackPoints);;
 
 
     return true;
 }
-
-Face::FaceDistance Face::distance(){
-    return mDistance;
-}
-
 
 Point Face::position(){
 
@@ -99,7 +93,7 @@ Rect Face::rect(){
     return mRect;
 }
 
-void Face::draw(Mat& frame, bool features){
+void Face::draw(Mat& frame, FaceDistance dist, bool features){
 
     // draw box + info
     ostringstream stream;
@@ -107,7 +101,7 @@ void Face::draw(Mat& frame, bool features){
 
     //color
     Scalar c;
-    switch(distance()){
+    switch(dist){
 
     case Face::FAR:
         c = Scalar(0, 0, 200);
@@ -118,23 +112,25 @@ void Face::draw(Mat& frame, bool features){
     case Face::NEAR:
         c = Scalar(0, 200, 0);
         break;
+    default:
+        c = Scalar(200, 200, 200);
     }
 
-    putText(frame, stream.str().c_str(), Point(mRect.x,mRect.y - 5), 0, 0.5, Scalar(255,255,255));
+    putText(frame, stream.str(), Point(mRect.x,mRect.y - 5), 1, 0.7, Scalar(255,255,255));
     rectangle(frame, mRect, c, 2);
 
 
     //draw features
     if( features ){
         for(unsigned int i=0; i < mTrackPoints.size(); i++){
-            circle( frame, mTrackPoints[i], 2, Scalar(0,255,0), -1, 8);
+            circle( frame, mTrackPoints[i], 1, Scalar(0,200,0), -1, 8);
         }
         Point2f motionVec = mMotionVector;
         motionVec.x += position().x;
         motionVec.y += position().y;
         line(frame, position(), motionVec, Scalar(255, 255, 0), 2);
 
-        Rect brect = boundingRect(mTrackPoints);
-        rectangle(frame, brect, Scalar(150, 150, 150), 1);
+        //Rect brect = boundingRect(mTrackPoints);
+        //rectangle(frame, brect, Scalar(150, 150, 150), 1);
     }
 }
