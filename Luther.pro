@@ -9,6 +9,7 @@ SOURCES += main.cpp \
 ########## OpenCV
 
 INCLUDEPATH += /usr/local/include/opencv2/
+
 LIBS += -L/usr/local/lib/ \
 -lopencv_imgproc \
 -lopencv_core \

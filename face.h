@@ -17,14 +17,14 @@ public:
     enum FaceDistance { FAR, MIDDLE, NEAR };
     enum FaceType { FRONT, PROFILE };
 
-    Face(Rect r, Face::FaceDistance dist, Mat& frame);
+    Face(Rect r, Face::FaceDistance dist, Mat& frame, Face::FaceType type = FRONT);
 
     FaceDistance distance();
     Point position();
     Rect rect();
 
     void draw(Mat& frame, bool features = true);
-    void update(Rect r, Face::FaceDistance dist, Mat& frame);
+    void update(Rect r, Face::FaceDistance dist, Mat& frame, Face::FaceType type = FRONT);
 
     bool isSimilar(Rect r);
     bool track(Mat& prev, Mat &curr);
@@ -36,12 +36,14 @@ private:
 
     Rect mRect;
     FaceDistance mDistance;
+    FaceType     mType;
 
     //tracking
     Size subPixWinSize = Size(2,2);
     Size winSize = Size(10,10);
     TermCriteria termcrit = TermCriteria(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS, 20, 0.03);
     vector<Point2f> mTrackPoints;
+    Point2f mMotionVector;
 };
 
 #endif // FACE_H

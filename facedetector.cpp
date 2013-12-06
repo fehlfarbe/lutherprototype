@@ -32,8 +32,12 @@ Facedetector::Facedetector()
 
 bool Facedetector::loadFrontCascade(char* cascade){
 
-    return mFaceCascade.load(cascade);
+    return mFrontCascade.load(cascade);
 
+}
+
+bool Facedetector::loadProfileCascade(char* cascade){
+    return mProfileCascade.load(cascade);
 }
 
 
@@ -56,14 +60,9 @@ Mat Facedetector::detect(Mat& frame){
     //background subtraction
     if( bgSubtraction ){
         mBGSubtractor->operator()(frame_resized, mBGMask);
-        //frame_gray = subtractBG(frame_gray);
-        //frame_gray = frame_gray & mBGMask;
-//        Mat tmp;
-//        frame_gray.copyTo(tmp, mBGMask);
-//        tmp.copyTo(frame_gray);
-//        cout << type2str(mBGMask.type()) << endl;
-//        cout << type2str(tmp.type()) << endl;
-//        cout << type2str(frame_gray.type()) << endl;
+        Mat tmp;
+        frame_gray.copyTo(tmp, mBGMask);
+        tmp.copyTo(frame_gray);
 
         if( debug ){
             imshow("BGMask", mBGMask);
@@ -81,27 +80,43 @@ Mat Facedetector::detect(Mat& frame){
     }
 
     //face detection
-    if( mFaces.size() < 8){
-        vector<Rect> rects;
-        mFaceCascade.detectMultiScale(frame_gray, rects, 1.1, 10, 0|CV_HAAR_SCALE_IMAGE, Size(24, 24), Size(200, 200));
+    vector<Rect> rects;
+    mFrontCascade.detectMultiScale(frame_gray, rects, 1.1, 12, 0|CV_HAAR_SCALE_IMAGE, Size(24, 24), Size(200, 200));
 
-        //rects to faces
-        for(unsigned int i=0; i<rects.size(); i++){
+    //rects to faces
+    for(unsigned int i=0; i<rects.size(); i++){
 
-            bool add = true;
-            for(unsigned j=0; j<mFaces.size(); j++){
-                if( mFaces[j].isSimilar(rects[i])){
-                    mFaces[j].update(rects[i], distance(rects[i]), frame_gray);
-                    add = false;
-                    break;
-                }
+        bool add = true;
+        for(unsigned j=0; j<mFaces.size(); j++){
+            if( mFaces[j].isSimilar(rects[i])){
+                mFaces[j].update(rects[i], distance(rects[i]), frame_gray);
+                add = false;
+                break;
             }
+        }
 
-            if( add ){
-                Face::FaceDistance dist = distance(rects[i]);
-                Face f = Face(rects[i], dist, frame_gray);
-                mFaces.push_back(f);
+        if( add ){
+            mFaces.push_back(Face(rects[i], distance(rects[i]), frame_gray));
+        }
+    }
+
+    rects.clear();
+    mProfileCascade.detectMultiScale(frame_gray, rects, 1.1, 12, 0|CV_HAAR_SCALE_IMAGE, Size(34, 20), Size(200, 200));
+
+    //rects to faces
+    for(unsigned int i=0; i<rects.size(); i++){
+
+        bool add = true;
+        for(unsigned j=0; j<mFaces.size(); j++){
+            if( mFaces[j].isSimilar(rects[i])){
+                mFaces[j].update(rects[i], distance(rects[i]), frame_gray);
+                add = false;
+                break;
             }
+        }
+
+        if( add ){
+            mFaces.push_back(Face(rects[i], distance(rects[i]), frame_gray, Face::PROFILE));
         }
     }
 

@@ -23,6 +23,7 @@ public:
     Facedetector();
 
     bool loadFrontCascade(char* cascade);
+    bool loadProfileCascade(char* cascade);
 
     Mat detect(Mat& frame);
     vector<Face> getFaces();
@@ -42,7 +43,8 @@ private:
     Face::FaceDistance distance(Rect r);
 
     // **** Member **** //
-    CascadeClassifier mFaceCascade;
+    CascadeClassifier mFrontCascade;
+    CascadeClassifier mProfileCascade;
     vector<Face> mFaces;
 
     //tracking

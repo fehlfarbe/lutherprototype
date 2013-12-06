@@ -28,7 +28,11 @@ int main()
     Facedetector detector = Facedetector();
     detector.bgSubtraction = false;
 
-    if(!detector.loadFrontCascade("../haarcascade_frontalface_default.xml")){
+    if(!detector.loadFrontCascade("../lbpcascade_frontalface.xml")){
+        cout << "Can't load cascade file";
+        return -1;
+    }
+    if(!detector.loadProfileCascade("../lbpcascade_profileface.xml")){
         cout << "Can't load cascade file";
         return -1;
     }
