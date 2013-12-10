@@ -13,7 +13,7 @@ using namespace cv;
 
 
 // options
-bool bgSub = false;
+bool bgSub = true;
 bool writeIM = true;
 const char* writeDst = "output/";
 
