@@ -18,7 +18,8 @@ LIBS += -L/usr/local/lib/ \
 -lopencv_video \
 -lopencv_videostab \
 -lopencv_features2d \
--lopencv_objdetect
+-lopencv_objdetect \
+-loscpack
 
 CONFIG+=link_pkgconfig PKGCONFIG+=opencv
 

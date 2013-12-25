@@ -20,7 +20,7 @@ public:
     Face(Rect r, Mat& frame, Face::FaceType type = FRONT);
 
     //FaceDistance distance();
-    Point position();
+    Point center();
     Rect rect();
 
     void draw(Mat& frame, FaceDistance dist = UNKNOWN, bool features = true);
@@ -36,8 +36,12 @@ public:
 
 private:
 
-    Rect mRect;
-    FaceType     mType;
+    int         mID;
+    Rect        mRect;
+    FaceType    mType;
+    Mat         mFace;
+
+    void updateFace(Mat& frame);
 
     //tracking
     Size subPixWinSize = Size(5,5);

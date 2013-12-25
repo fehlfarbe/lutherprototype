@@ -3,6 +3,8 @@
 Face::Face(Rect r, Mat &frame, FaceType type)
 {
     update(r, frame, type);
+    static int  counter = 0;
+    mID = counter++;
 }
 
 void Face::update(Rect r, Mat& frame, FaceType type){
@@ -13,6 +15,13 @@ void Face::update(Rect r, Mat& frame, FaceType type){
     else{
         //ToDo: merge
         mRect = r;
+//        cout << mRect << endl;
+//        mRect.x = r.x < mRect.x ? r.x : mRect.x;
+//        mRect.width = r.x + r.width > mRect.x + mRect.width ?
+//                    r.x + r.width : mRect.x + mRect.width;
+//        mRect.y = r.y > mRect.y ? r.y : mRect.y;
+//        mRect.height = r.y + r.height > mRect.y + mRect.height ?
+//                    r.y + r.height : mRect.y + mRect.height;
     }
 
     mType = type;
@@ -25,9 +34,27 @@ void Face::update(Rect r, Mat& frame, FaceType type){
     goodFeaturesToTrack(frame, mTrackPoints, 100, 0.01, 5, mask, 3, 0, 0.04);
     //if( mTrackPoints.size() > 0)
     //    cornerSubPix(frame, mTrackPoints, subPixWinSize, Size(-1,-1), termcrit);
+
+
+    updateFace(frame);
 }
 
 bool Face::isSimilar(Rect r){
+
+    //TODO: is middlepoint in circle?
+    int a = mRect.x - center().x,
+        b = mRect.y - center().y;
+    int radius = sqrt(a*a+b*b);
+
+    a = r.x - center().x,
+    b = r.y - center().y;
+    int distance = sqrt(a*a+b*b);
+
+    cout << radius << ", " << distance << endl;
+
+
+    if( radius > distance)
+        return true;
 
     Rect intersect = r & mRect;
     if( intersect.size().area() > 0){
@@ -68,21 +95,19 @@ bool Face::track(Mat& prev, Mat& curr){
     newPoints.resize(k);
     swap(mTrackPoints, newPoints);
 
-    if( mTrackPoints.empty() )
+    if( mTrackPoints.size() < 4 )
         return false;
 
+    mRect = boundingRect(mTrackPoints);
 
-    //cout << mTrackPoints.size() << endl;
-//    Rect brect = boundingRect(mTrackPoints);
-//    mRect.x = brect.x;
-//    mRect.y = brect.y;
-    mRect = boundingRect(mTrackPoints);;
+    //update face
+    updateFace(curr);
 
 
     return true;
 }
 
-Point Face::position(){
+Point Face::center(){
 
     return Point(mRect.x+mRect.width/2,
                  mRect.y+mRect.height/2);
@@ -97,7 +122,7 @@ void Face::draw(Mat& frame, FaceDistance dist, bool features){
 
     // draw box + info
     ostringstream stream;
-    stream << mRect.width << "x" << mRect.height << "px, " << mTrackPoints.size() << "feat";
+    stream << mID << ": " << mRect.width << "x" << mRect.height << "px, " << mTrackPoints.size() << "feat";
 
     //color
     Scalar c;
@@ -125,12 +150,33 @@ void Face::draw(Mat& frame, FaceDistance dist, bool features){
         for(unsigned int i=0; i < mTrackPoints.size(); i++){
             circle( frame, mTrackPoints[i], 1, Scalar(0,200,0), -1, 8);
         }
+
+        //motionVector
         Point2f motionVec = mMotionVector;
-        motionVec.x += position().x;
-        motionVec.y += position().y;
-        line(frame, position(), motionVec, Scalar(255, 255, 0), 2);
+        motionVec.x += center().x;
+        motionVec.y += center().y;
+        line(frame, center(), motionVec, Scalar(255, 255, 0), 2);
+
+        int a = mRect.x - center().x,
+            b = mRect.y - center().y;
+        int radius = sqrt(a*a+b*b);
+        circle(frame, center(), radius, Scalar(100, 100, 100));
 
         //Rect brect = boundingRect(mTrackPoints);
         //rectangle(frame, brect, Scalar(150, 150, 150), 1);
     }
+}
+
+void Face::updateFace(Mat& frame){
+    Rect r = mRect;
+    r.x = r.x < 0 ? 0 : r.x;
+    r.x = r.x > frame.cols ? frame.cols : r.x;
+    r.y = r.y < 0 ? 0 : r.y;
+    r.y = r.y > frame.rows ? frame.rows : r.y;
+    mFace = Mat(frame, r);
+
+    ostringstream stream;
+    stream << mID;
+    imshow(stream.str(), mFace);
+    waitKey(10);
 }

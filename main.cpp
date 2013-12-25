@@ -8,6 +8,14 @@
 #include <highgui/highgui.hpp>
 #include <facedetector.h>
 
+#include "osc/OscOutboundPacketStream.h"
+#include "ip/UdpSocket.h"
+
+
+#define ADDRESS "127.0.0.1"
+#define PORT 7000
+#define OUTPUT_BUFFER_SIZE 1024
+
 using namespace std;
 using namespace cv;
 
@@ -21,13 +29,12 @@ int main()
 {
 
 //    VideoCapture cap = VideoCapture(0);
-    VideoCapture cap = VideoCapture("../input/Unbenannt.mpg");
+    VideoCapture cap = VideoCapture("../../input/Unbenannt.mpg");
 
     if( !cap.isOpened()){
         cout << "Can't open videodevice" << endl;
         return -1;
     }
-
 
     int count = 0;
     Mat frame, output;
@@ -36,20 +43,38 @@ int main()
     Facedetector detector = Facedetector();
     detector.bgSubtraction = bgSub;
 
-    if(!detector.loadFrontCascade("lbpcascade_frontalface.xml")){
+    if(!detector.loadFrontCascade("../lbpcascade_frontalface.xml")){
         cout << "Can't load cascade file";
         return -1;
     }
-    if(!detector.loadProfileCascade("lbpcascade_profileface.xml")){
+    if(!detector.loadProfileCascade("../lbpcascade_profileface.xml")){
         cout << "Can't load cascade file";
         return -1;
     }
 
+    //setup OSC connection
+    UdpTransmitSocket transmitSocket( IpEndpointName( ADDRESS, PORT ) );
+    char buffer[OUTPUT_BUFFER_SIZE];
+    osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
+
+
+    //Start endless loop
     while(!frame.empty()){
         count++;
         clock_t t = clock();
+
+        //face detection
         output = detector.detect(frame);
         vector<Face> faces = detector.getFaces();
+
+        //send OSC packets
+        p.Clear();
+        p << osc::BeginBundleImmediate
+            << osc::BeginMessage( "/test1" )
+                << true << count << (float)t << "hello world" << osc::EndMessage
+            << osc::EndBundle;
+        transmitSocket.Send( p.Data(), p.Size() );
+
 
         //Ouput Window
         float fps = 1.0f / ((float(clock()-t)/CLOCKS_PER_SEC));
@@ -69,11 +94,13 @@ int main()
         //cout << faces.size() << " faces ";
         //cout << "(" << 1.0 / ((float(clock()-t)/CLOCKS_PER_SEC)) << "fps)" << endl;
 
+        //read next frame
         cap.read(frame);
     }
 
     cap.release();
     cout << "End.." << endl;
+
     return 0;
 }
 
