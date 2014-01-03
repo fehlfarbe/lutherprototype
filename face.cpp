@@ -2,9 +2,25 @@
 
 Face::Face(Rect r, Mat &frame, FaceType type)
 {
+    cout << "new face" << endl;
     update(r, frame, type);
     static int  counter = 0;
     mID = counter++;
+}
+
+Face::~Face(){
+    //cleanup
+    //cout << "Cleanup Face " << mID << endl;
+
+    mTrackPoints.clear();
+    mFace.release();
+}
+
+void Face::release(){
+    //close window
+    ostringstream stream;
+    stream << mID;
+    destroyWindow(stream.str());
 }
 
 void Face::update(Rect r, Mat& frame, FaceType type){
@@ -50,7 +66,7 @@ bool Face::isSimilar(Rect r){
     b = r.y - center().y;
     int distance = sqrt(a*a+b*b);
 
-    cout << radius << ", " << distance << endl;
+    //cout << radius << ", " << distance << endl;
 
 
     if( radius > distance)
@@ -179,4 +195,8 @@ void Face::updateFace(Mat& frame){
     stream << mID;
     imshow(stream.str(), mFace);
     waitKey(10);
+}
+
+int Face::getID(){
+    return mID;
 }

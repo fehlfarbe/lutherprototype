@@ -25,7 +25,35 @@ string type2str(int type) {
 
 Facedetector::Facedetector()
 {
+    //create Backgroundsubstractor
     mBGSubtractor = new BackgroundSubtractorMOG2();
+
+    //setup OSC Connection
+    oscOutputBuffer = new char[oscBufferSize];
+    oscTransmitSocket = new UdpTransmitSocket( IpEndpointName( oscAddr, oscPort ) );
+
+    osc::OutboundPacketStream p( oscOutputBuffer, oscBufferSize );
+    p << osc::BeginBundleImmediate
+      << osc::BeginMessage( "/start" )
+      << osc::EndMessage
+      << osc::EndBundle;
+    oscTransmitSocket->Send( p.Data(), p.Size() );
+}
+
+
+Facedetector::~Facedetector(){
+
+    cout << "Cleanup Facedetector..." << endl;
+    //Cleanup OSC
+    //send escaped face ID with OSC
+    osc::OutboundPacketStream p( oscOutputBuffer, oscBufferSize );
+    p << osc::BeginBundleImmediate
+      << osc::BeginMessage( "/end" )
+      << osc::EndMessage
+      << osc::EndBundle;
+    oscTransmitSocket->Send( p.Data(), p.Size() );
+    delete[] oscOutputBuffer;
+    delete oscTransmitSocket;
 
 }
 
@@ -70,12 +98,24 @@ Mat Facedetector::detect(Mat& frame){
         }
     }
 
-
+    //delete escaped faces
     for(unsigned int i = 0; i<mFaces.size(); i++){
+        cout << "track" << endl;
         if( !mFaces[i].track(mPrevGray, frame_gray) ){
+            cout << "delete element with id " << mFaces[i].getID() << endl;
+
+            //send escaped face ID with OSC
+            osc::OutboundPacketStream p( oscOutputBuffer, oscBufferSize );
+            p << osc::BeginBundleImmediate
+              << osc::BeginMessage( "/deleteface" )
+              << mFaces[i].getID() << osc::EndMessage
+              << osc::EndBundle;
+            oscTransmitSocket->Send( p.Data(), p.Size() );
+
+            //delete element
+            mFaces[i].release();
             mFaces.erase(mFaces.begin() + i);
             i--;
-            cout << "delete elemnent" << endl;
         }
     }
 
@@ -141,7 +181,16 @@ void Facedetector::addFaces(vector<Rect> rects, Mat& frame, Face::FaceType type)
         }
 
         if( add ){
-            mFaces.push_back(Face(rects[i], frame, type));
+            Face f = Face(rects[i], frame, type);
+            mFaces.push_back(f);
+
+            //send new ID with OSC
+            osc::OutboundPacketStream p( oscOutputBuffer, oscBufferSize );
+            p << osc::BeginBundleImmediate
+              << osc::BeginMessage( "/newface" )
+              << f.getID() << osc::EndMessage
+              << osc::EndBundle;
+            oscTransmitSocket->Send( p.Data(), p.Size() );
         }
     }
 }

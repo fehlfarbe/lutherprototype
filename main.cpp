@@ -8,14 +8,6 @@
 #include <highgui/highgui.hpp>
 #include <facedetector.h>
 
-#include "osc/OscOutboundPacketStream.h"
-#include "ip/UdpSocket.h"
-
-
-#define ADDRESS "127.0.0.1"
-#define PORT 7000
-#define OUTPUT_BUFFER_SIZE 1024
-
 using namespace std;
 using namespace cv;
 
@@ -52,12 +44,6 @@ int main()
         return -1;
     }
 
-    //setup OSC connection
-    UdpTransmitSocket transmitSocket( IpEndpointName( ADDRESS, PORT ) );
-    char buffer[OUTPUT_BUFFER_SIZE];
-    osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
-
-
     //Start endless loop
     while(!frame.empty()){
         count++;
@@ -66,15 +52,6 @@ int main()
         //face detection
         output = detector.detect(frame);
         vector<Face> faces = detector.getFaces();
-
-        //send OSC packets
-        p.Clear();
-        p << osc::BeginBundleImmediate
-            << osc::BeginMessage( "/test1" )
-                << true << count << (float)t << "hello world" << osc::EndMessage
-            << osc::EndBundle;
-        transmitSocket.Send( p.Data(), p.Size() );
-
 
         //Ouput Window
         float fps = 1.0f / ((float(clock()-t)/CLOCKS_PER_SEC));

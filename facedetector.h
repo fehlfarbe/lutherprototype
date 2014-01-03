@@ -14,6 +14,9 @@
 
 #include <face.h>
 
+#include "osc/OscOutboundPacketStream.h"
+#include "ip/UdpSocket.h"
+
 using namespace std;
 using namespace cv;
 
@@ -21,6 +24,8 @@ class Facedetector
 {
 public:
     Facedetector();
+    ~Facedetector();
+
 
     bool loadFrontCascade(char* cascade);
     bool loadProfileCascade(char* cascade);
@@ -55,6 +60,14 @@ private:
     //background subtract
     Ptr<BackgroundSubtractor> mBGSubtractor;
     Mat mBGMask;
+
+    //OSC Network
+    char*    oscAddr = "127.0.0.1";
+    int      oscPort = 7000;
+    int      oscBufferSize = 1024;
+    char*    oscOutputBuffer;
+    UdpTransmitSocket* oscTransmitSocket;
+
 
 };
 

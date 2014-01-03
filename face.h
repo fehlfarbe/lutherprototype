@@ -18,13 +18,16 @@ public:
     enum FaceType { FRONT, PROFILE };
 
     Face(Rect r, Mat& frame, Face::FaceType type = FRONT);
+    ~Face();
+    void release();
 
     //FaceDistance distance();
     Point center();
     Rect rect();
 
-    void draw(Mat& frame, FaceDistance dist = UNKNOWN, bool features = true);
-    void update(Rect r, Mat& frame, Face::FaceType type = FRONT);
+    void    draw(Mat& frame, FaceDistance dist = UNKNOWN, bool features = true);
+    void    update(Rect r, Mat& frame, FaceType type = FRONT);
+    int     getID();
 
     int middleDistance = 0;
     int nearDistance = 0;
