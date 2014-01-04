@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <sstream>
+#include <sys/time.h>
+
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -21,13 +23,16 @@ public:
     ~Face();
     void release();
 
-    //FaceDistance distance();
+    //getter
     Point center();
+    Point motionVec();
     Rect rect();
+    int     id();
+    int     duration();
+
 
     void    draw(Mat& frame, FaceDistance dist = UNKNOWN, bool features = true);
     void    update(Rect r, Mat& frame, FaceType type = FRONT);
-    int     getID();
 
     int middleDistance = 0;
     int nearDistance = 0;
@@ -40,6 +45,7 @@ public:
 private:
 
     int         mID;
+    clock_t     mStartTime;
     Rect        mRect;
     FaceType    mType;
     Mat         mFace;

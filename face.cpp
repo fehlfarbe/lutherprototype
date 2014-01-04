@@ -4,8 +4,13 @@ Face::Face(Rect r, Mat &frame, FaceType type)
 {
     cout << "new face" << endl;
     update(r, frame, type);
+
+    //set ID
     static int  counter = 0;
     mID = counter++;
+
+    //set Starttime
+    mStartTime = clock();
 }
 
 Face::~Face(){
@@ -197,6 +202,14 @@ void Face::updateFace(Mat& frame){
     waitKey(10);
 }
 
-int Face::getID(){
+int Face::id(){
     return mID;
+}
+
+int Face::duration(){
+    return ( clock() - mStartTime ) / (double) CLOCKS_PER_SEC;
+}
+
+Point Face::motionVec(){
+    return mMotionVector;
 }

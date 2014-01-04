@@ -100,17 +100,20 @@ Mat Facedetector::detect(Mat& frame){
 
     //delete escaped faces
     for(unsigned int i = 0; i<mFaces.size(); i++){
-        cout << "track" << endl;
         if( !mFaces[i].track(mPrevGray, frame_gray) ){
-            cout << "delete element with id " << mFaces[i].getID() << endl;
+            cout << "delete element with id " << mFaces[i].id() << endl;
 
             //send escaped face ID with OSC
             osc::OutboundPacketStream p( oscOutputBuffer, oscBufferSize );
             p << osc::BeginBundleImmediate
               << osc::BeginMessage( "/deleteface" )
-              << mFaces[i].getID() << osc::EndMessage
+              << mFaces[i].id() << osc::EndMessage
               << osc::EndBundle;
             oscTransmitSocket->Send( p.Data(), p.Size() );
+
+            //get duration time
+            int dur = mFaces[i].duration();
+            cout << "Face " << mFaces[i].id() << " was " << dur << "s detected" << endl;
 
             //delete element
             mFaces[i].release();
@@ -126,6 +129,21 @@ Mat Facedetector::detect(Mat& frame){
     rects.clear();
     mProfileCascade.detectMultiScale(frame_gray, rects, 1.1, 12, 0|CV_HAAR_SCALE_IMAGE, Size(34, 20), Size(200, 200));
     addFaces(rects, frame_gray, Face::PROFILE);
+
+    //send FaceList with OSC
+    for(unsigned int i=0; i<mFaces.size(); i++){
+        osc::OutboundPacketStream p( oscOutputBuffer, oscBufferSize );
+        p << osc::BeginBundleImmediate
+          << osc::BeginMessage( "/facelist" )
+          << mFaces[i].id()
+          << mFaces[i].center().x
+          << mFaces[i].center().y
+          << mFaces[i].motionVec().x
+          << mFaces[i].motionVec().y
+          << osc::EndMessage
+          << osc::EndBundle;
+        oscTransmitSocket->Send( p.Data(), p.Size() );
+    }
 
     //draw faces
     drawFaces(frame_resized);
@@ -188,7 +206,7 @@ void Facedetector::addFaces(vector<Rect> rects, Mat& frame, Face::FaceType type)
             osc::OutboundPacketStream p( oscOutputBuffer, oscBufferSize );
             p << osc::BeginBundleImmediate
               << osc::BeginMessage( "/newface" )
-              << f.getID() << osc::EndMessage
+              << f.id() << osc::EndMessage
               << osc::EndBundle;
             oscTransmitSocket->Send( p.Data(), p.Size() );
         }
