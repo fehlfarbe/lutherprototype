@@ -25,6 +25,17 @@ string type2str(int type) {
 
 Facedetector::Facedetector()
 {
+	//init
+	debug = true;
+    bgSubtraction = true;
+    detectionSize = Size(640, 480);
+    middleArea = 50;
+    nearArea = 86;
+
+	oscAddr = "127.0.0.1";
+    oscPort = 7000;
+    oscBufferSize = 1024;
+
     //create Backgroundsubstractor
     mBGSubtractor = new BackgroundSubtractorMOG2();
 

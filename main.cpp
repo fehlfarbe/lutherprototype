@@ -1,11 +1,11 @@
 #include <sstream>
 #include <iostream>
-#include <sys/time.h>
+#include <time.h>
 
-#include <core/core.hpp>
-#include <imgproc/imgproc.hpp>
-#include <video/video.hpp>
-#include <highgui/highgui.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/video/video.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #include <facedetector.h>
 
 using namespace std;
@@ -20,10 +20,10 @@ const char* writeDst = "output/";
 int main()
 {
 
-//    VideoCapture cap = VideoCapture(0);
-    VideoCapture cap = VideoCapture("../../input/Unbenannt.mpg");
+    //VideoCapture cap = VideoCapture(0);
+    VideoCapture cap = VideoCapture("C:\\Luther\\Unbenannt.mpg");
 
-    if( !cap.isOpened()){
+    if( !cap.isOpened() ){
         cout << "Can't open videodevice" << endl;
         return -1;
     }

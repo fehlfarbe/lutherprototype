@@ -4,9 +4,9 @@
 #include <iostream>
 #include <sstream>
 
-#include <core/core.hpp>
-#include <highgui/highgui.hpp>
-#include <objdetect/objdetect.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/objdetect/objdetect.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/video/video.hpp>
 #include <opencv2/video/background_segm.hpp>
@@ -34,11 +34,11 @@ public:
     vector<Face> getFaces();
 
 
-    bool debug = true;
-    bool bgSubtraction = true;
-    Size detectionSize = Size(640, 480);
-    int middleArea = 50;
-    int nearArea = 86;
+    bool debug;
+    bool bgSubtraction;
+    Size detectionSize;
+    int middleArea;
+    int nearArea;
 
 
 private:
@@ -62,9 +62,9 @@ private:
     Mat mBGMask;
 
     //OSC Network
-    char*    oscAddr = "127.0.0.1";
-    int      oscPort = 7000;
-    int      oscBufferSize = 1024;
+    char*    oscAddr;
+    int      oscPort;
+    int      oscBufferSize;
     char*    oscOutputBuffer;
     UdpTransmitSocket* oscTransmitSocket;
 

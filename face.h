@@ -29,8 +29,8 @@ public:
     void    update(Rect r, Mat& frame, FaceType type = FRONT);
     int     getID();
 
-    int middleDistance = 0;
-    int nearDistance = 0;
+    int middleDistance;
+    int nearDistance;
     bool isSimilar(Rect r);
     bool track(Mat& prev, Mat &curr);
     void show(int ms = 10);
@@ -47,9 +47,9 @@ private:
     void updateFace(Mat& frame);
 
     //tracking
-    Size subPixWinSize = Size(5,5);
-    Size winSize = Size(11,11);
-    TermCriteria termcrit = TermCriteria(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS, 20, 0.03);
+    Size subPixWinSize;
+    Size winSize;
+    TermCriteria termcrit;
     vector<Point2f> mTrackPoints;
     Point2f mMotionVector;
 };

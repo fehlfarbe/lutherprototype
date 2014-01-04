@@ -6,6 +6,12 @@ Face::Face(Rect r, Mat &frame, FaceType type)
     update(r, frame, type);
     static int  counter = 0;
     mID = counter++;
+	middleDistance = 0;
+    nearDistance = 0;
+
+	subPixWinSize = Size(5,5);
+    winSize = Size(11,11);
+    termcrit = TermCriteria(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS, 20, 0.03);
 }
 
 Face::~Face(){
@@ -60,11 +66,11 @@ bool Face::isSimilar(Rect r){
     //TODO: is middlepoint in circle?
     int a = mRect.x - center().x,
         b = mRect.y - center().y;
-    int radius = sqrt(a*a+b*b);
+    int radius = sqrt(double(a*a+b*b));
 
     a = r.x - center().x,
     b = r.y - center().y;
-    int distance = sqrt(a*a+b*b);
+    int distance = sqrt(double(a*a+b*b));
 
     //cout << radius << ", " << distance << endl;
 
@@ -175,7 +181,7 @@ void Face::draw(Mat& frame, FaceDistance dist, bool features){
 
         int a = mRect.x - center().x,
             b = mRect.y - center().y;
-        int radius = sqrt(a*a+b*b);
+        int radius = sqrt(double(a*a+b*b));
         circle(frame, center(), radius, Scalar(100, 100, 100));
 
         //Rect brect = boundingRect(mTrackPoints);
