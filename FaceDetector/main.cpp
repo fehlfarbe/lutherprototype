@@ -17,20 +17,28 @@ bool bgSub = true;
 bool writeIM = true;
 const char* writeDst = "output/";
 
-int main()
+int main( int argc, const char* argv[] )
 {
 
-    //VideoCapture cap = VideoCapture(0);
-    VideoCapture cap = VideoCapture("C:\\Luther\\Unbenannt.mpg");
+    VideoCapture *cap;
+    if( argc > 1){
+        cout << "Open file " << argv[1] << endl;
+        cap = new VideoCapture(argv[1]);
+    }
+    else{
+        cout << "Open Videodevice 0" << endl;
+        cap = new VideoCapture(0);
+    }
 
-    if( !cap.isOpened() ){
+
+    if( !cap->isOpened() ){
         cout << "Can't open videodevice" << endl;
         return -1;
     }
 
     int count = 0;
     Mat frame, output;
-    cap.read(frame);
+    cap->read(frame);
 
     Facedetector detector = Facedetector();
     detector.bgSubtraction = bgSub;
@@ -72,10 +80,11 @@ int main()
         //cout << "(" << 1.0 / ((float(clock()-t)/CLOCKS_PER_SEC)) << "fps)" << endl;
 
         //read next frame
-        cap.read(frame);
+        cap->read(frame);
     }
 
-    cap.release();
+    cap->release();
+    delete cap;
     cout << "End.." << endl;
 
     return 0;
