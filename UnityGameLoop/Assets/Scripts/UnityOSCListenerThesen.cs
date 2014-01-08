@@ -1,16 +1,17 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class UnityOSCListener : MonoBehaviour  {
+public class UnityOSCListenerThesen : MonoBehaviour  {
 	public void OSCMessageReceived(OSC.NET.OSCMessage message){	
 		string address = message.Address;
 		ArrayList args = message.Values;
-
+		
 		//Debug.Log(address);
-
+		
+		
 		if(args.Count < 1) return;
-
+		
 		string oscmsg = args[0].ToString();
 		switch(address) {
 		case "/start":
@@ -18,14 +19,14 @@ public class UnityOSCListener : MonoBehaviour  {
 			break;
 		case "/newface":
 			Debug.Log("newface id" + args[0]);
-			GameObject.Find("init").GetComponent<worms>().triggerPersonIn((int)args[0]);
+			//GameObject.Find("init").GetComponent<worms>().triggerPersonIn((int)args[0]);
 			break;
 		case "/deleteface":
 			Debug.Log("deleteface" + args[0]);
-			GameObject.Find("init").GetComponent<worms>().triggerPersonOut((int)args[0]);
+			//GameObject.Find("init").GetComponent<worms>().triggerPersonOut((int)args[0]);
 			break;
 		case "/facelist":
-			//Debug.Log("facelist");
+			GameObject.Find("init").GetComponent<thesen>().setzeAktuellenBereich((int)args[5]);
 			break;
 		case "/end":
 			Debug.Log("Erkennung beendet");
@@ -34,9 +35,7 @@ public class UnityOSCListener : MonoBehaviour  {
 			//Debug.Log("no input");
 			break;
 		}
-
-		/*foreach( var item in args){
-			Debug.Log(item);
-		}*/
+		
+		
 	}
 }
