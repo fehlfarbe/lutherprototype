@@ -196,10 +196,16 @@ void Face::draw(Mat& frame, FaceDistance dist, bool features){
 
 void Face::updateFace(Mat& frame){
     Rect r = mRect;
+
+    cout << r.x + r.width << "/" << frame.cols;
     r.x = r.x < 0 ? 0 : r.x;
-    r.x = r.x > frame.cols ? frame.cols : r.x;
+    r.x = r.x >= frame.cols ? frame.cols-1 : r.x;
+    r.width = r.x + r.width >= frame.cols ? frame.cols-1-r.x : r.width;
+
     r.y = r.y < 0 ? 0 : r.y;
-    r.y = r.y > frame.rows ? frame.rows : r.y;
+    r.y = r.y >= frame.rows ? frame.rows-1 : r.y;
+    r.height = r.y + r.height >= frame.rows ? frame.rows-1-r.y : r.height;
+
     mFace = Mat(frame, r);
 
 
