@@ -8,11 +8,7 @@ public class UnityOSCListenerThesen : MonoBehaviour  {
 		ArrayList args = message.Values;
 		
 		//Debug.Log(address);
-		
-		
-		if(args.Count < 1) return;
-		
-		string oscmsg = args[0].ToString();
+
 		switch(address) {
 		case "/start":
 			Debug.Log("Erkennung läuft");

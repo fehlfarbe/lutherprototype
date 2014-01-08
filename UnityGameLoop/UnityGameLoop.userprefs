@@ -2,11 +2,12 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\thesen.cs">
     <Files>
-      <File FileName="Assets\Scripts\Charakter.cs" Line="70" Column="20" />
-      <File FileName="Assets\Scripts\worms.cs" Line="3" Column="22" />
-      <File FileName="..\..\..\Desktop\Terrain_last\Terrain - Kopie\Assets\Scripts\Objects\Duck.cs" Line="427" Column="20" />
-      <File FileName="Assets\Scripts\thesen.cs" Line="162" Column="1" />
-      <File FileName="Assets\Scripts\UnityOSCListenerWorms.cs" Line="11" Column="3" />
+      <File FileName="Assets\Scripts\thesen.cs" Line="75" Column="27" />
+      <File FileName="Assets\Scripts\Charakter.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\worms.cs" Line="1" Column="1" />
+      <File FileName="..\..\..\Desktop\Terrain_last\Terrain - Kopie\Assets\Scripts\Objects\Duck.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\UnityOSCListenerWorms.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\UnityOSCListenerThesen.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

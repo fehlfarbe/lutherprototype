@@ -35,7 +35,7 @@ public class thesen : MonoBehaviour {
 
 		//movTexture = Resources.Load("Vids/luther_hammer", typeof(MovieTexture)) as MovieTexture;
 		setMovTexture(1, true);
-		status = Status.Aufmerksam;
+		status = Status.Idle;
 		aktuellerBereich = Bereich.Leer;
 		letzterZeitstempel = Time.time;
 		oscZeitstempel = Time.time;
@@ -72,6 +72,7 @@ public class thesen : MonoBehaviour {
 		if(status != Status.Idle && Time.time - oscZeitstempel > 4.0f) {
 			status = Status.Idle;
 			aktuellerBereich = Bereich.Leer;
+			setMovTexture(1, true);
 			Debug.Log("Status.IDLE");
 		}
 
@@ -124,11 +125,11 @@ public class thesen : MonoBehaviour {
 			// TODO: Übergangssequenzen
 			
 		}
-		if(aktuellerBereich == Bereich.Leer) {
+		/*if(aktuellerBereich == Bereich.Leer) {
 			setMovTexture(1, true);
 			// TODO: Übergangssequenzen
 			
-		}
+		}*/
 	}
 
 	private void aufmerksam() {
