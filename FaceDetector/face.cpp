@@ -202,10 +202,11 @@ void Face::updateFace(Mat& frame){
     r.y = r.y > frame.rows ? frame.rows : r.y;
     mFace = Mat(frame, r);
 
-    ostringstream stream;
+
+/*    ostringstream stream;
     stream << mID;
     imshow(stream.str(), mFace);
-    waitKey(10);
+    waitKey(10)*/;
 }
 
 int Face::id(){

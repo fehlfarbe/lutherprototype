@@ -151,6 +151,7 @@ Mat Facedetector::detect(Mat& frame){
           << mFaces[i].center().y
           << mFaces[i].motionVec().x
           << mFaces[i].motionVec().y
+          << distance(mFaces[i].rect())
           << osc::EndMessage
           << osc::EndBundle;
         oscTransmitSocket->Send( p.Data(), p.Size() );
@@ -217,7 +218,9 @@ void Facedetector::addFaces(vector<Rect> rects, Mat& frame, Face::FaceType type)
             osc::OutboundPacketStream p( oscOutputBuffer, oscBufferSize );
             p << osc::BeginBundleImmediate
               << osc::BeginMessage( "/newface" )
-              << f.id() << osc::EndMessage
+              << f.id()
+              << distance(mFaces[i].rect())
+              << osc::EndMessage
               << osc::EndBundle;
             oscTransmitSocket->Send( p.Data(), p.Size() );
         }
