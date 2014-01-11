@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
+using System.IO.Ports;
 
 public class thesen : MonoBehaviour {
 
@@ -23,17 +25,20 @@ public class thesen : MonoBehaviour {
 		Nah
 	}
 
-	private Bereich aktuellerBereich;
-	private double letzterZeitstempel;
+	private Bereich aktuellerBereich = Bereich.Leer;
+	private float letzterZeitstempel;
+	private float oscZeitstempel;
+
 
 	// Use this for initialization
 	void Start() {
 
 		//movTexture = Resources.Load("Vids/luther_hammer", typeof(MovieTexture)) as MovieTexture;
 		setMovTexture(1, true);
-		status = Status.Aufmerksam;
+		status = Status.Idle;
 		aktuellerBereich = Bereich.Leer;
 		letzterZeitstempel = Time.time;
+		oscZeitstempel = Time.time;
 	}
 
 	// Update is called once per frame
@@ -64,6 +69,13 @@ public class thesen : MonoBehaviour {
 			letzterZeitstempel = Time.time;
 		}
 
+		if(status != Status.Idle && Time.time - oscZeitstempel > 4.0f) {
+			status = Status.Idle;
+			aktuellerBereich = Bereich.Leer;
+			setMovTexture(1, true);
+			Debug.Log("Status.IDLE");
+		}
+
 		// GameLoop
 			
 		switch(status) {
@@ -89,6 +101,7 @@ public class thesen : MonoBehaviour {
 	private void setMovTexture(int nr, bool loop) {
 		movTexture = movarr[nr-1];
 		renderer.material.mainTexture = movTexture;
+		movTexture.Stop();
 		movTexture.loop = loop;
 		movTexture.Play();
 	}
@@ -112,6 +125,11 @@ public class thesen : MonoBehaviour {
 			// TODO: Übergangssequenzen
 			
 		}
+		/*if(aktuellerBereich == Bereich.Leer) {
+			setMovTexture(1, true);
+			// TODO: Übergangssequenzen
+			
+		}*/
 	}
 
 	private void aufmerksam() {
@@ -149,6 +167,25 @@ public class thesen : MonoBehaviour {
 	}
 
 	private void reaktion() {
+
+		#region Druckeransteuerung
+		// create SerialPort("COM3", 9600);
+		SerialPort port = new SerialPort("DruckerImpuls", 9600);
+		try
+		{
+			port.Open();
+			port.Write("1"); // "write something, nevermind what
+		}
+		catch (Exception e)
+		{
+			Debug.Log(e);
+		}
+		finally
+		{
+			port.Close();
+		}
+		#endregion
+
 		if (aktuellerBereich == Bereich.Leer) {
 			setMovTexture(1, true);
 			status = Status.Idle;
@@ -169,5 +206,15 @@ public class thesen : MonoBehaviour {
 		}
 		else
 			return false;
+	}
+
+	public void setzeAktuellenBereich(int b) {
+		oscZeitstempel = Time.time;
+		switch(b) {
+		case 0: aktuellerBereich = Bereich.Fern; break;
+		case 1: aktuellerBereich = Bereich.Mittel; break;
+		case 2: aktuellerBereich = Bereich.Nah; break;
+		default: aktuellerBereich = Bereich.Leer; break;
+		}
 	}
 }

@@ -9,10 +9,13 @@ public class Charakter : MonoBehaviour {
 
 	private Vector2 position;
 
+	public float initialPos = 0.0f;
 	public Vector2 range = new Vector2(-5.0f, 5.0f);
 
 	private bool isFading;
 	private float fadeValue;
+
+	private int motionFactor = 0;
 
 	// Use this for initialization
 	void Start () {
@@ -34,6 +37,13 @@ public class Charakter : MonoBehaviour {
 			if(color.a == 1.0f || color.a == 0.0f) {
 				isFading = false;
 			}
+			if(color.a == 0.0f)
+				this.transform.position = new Vector3(this.transform.position.x, 0, this.transform.position.z);
+		}
+
+		if(motionFactor != 0) {
+			float diffrange = (range.y - range.x) / 10;
+			this.transform.Translate(0.0f, 0.1f * diffrange * -motionFactor * Time.deltaTime, 0.0f, Space.World);
 		}
 	}
 
@@ -48,5 +58,15 @@ public class Charakter : MonoBehaviour {
 	public void fade(float f) {
 		fadeValue = f;
 		isFading = true;
+	}
+
+	public void setMotionFactor(int f) {
+		motionFactor = f;
+	}
+
+	public void resetCharakter() {
+		setFaceID(-1);
+		fade(-0.5f);
+		setMotionFactor(0);
 	}
 }
