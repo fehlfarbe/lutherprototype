@@ -46,7 +46,7 @@ public:
 private:
 
     int         mID;
-    time_t     mStartTime;
+    time_t      mStartTime;
     Rect        mRect;
     FaceType    mType;
     Mat         mFace;
@@ -59,6 +59,7 @@ private:
     Size winSize;
     TermCriteria termcrit;
     vector<Point2f> mTrackPoints;
+    vector<uchar> mStatus;
     Point2f mMotionVector;
 };
 

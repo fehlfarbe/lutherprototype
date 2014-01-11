@@ -111,19 +111,11 @@ Mat Facedetector::detect(Mat& frame){
     if( bgSubtraction ){
         mBGSub.operator ()(frame_gray, mBGMask);
         Mat cont = mBGMask.clone();
-        //Mat tmp;
-        //frame_gray.copyTo(tmp, mBGMask);
-        //tmp.copyTo(frame_gray);
 
         vector<vector<Point> > contours;
         vector<Vec4i> hierarchy;
 
-        // Find contours
-        //RNG rng(12345);
-        findContours( cont, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
-
-        // Draw contours
-        //Mat roi = Mat(frame_resized, Rect(0, roiTop, frame_gray.cols, frame_gray.rows-roiTop-roiBottom));
+        findContours( cont, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, Point(0, 0) );
 
         mFgROIs.clear();
         for( int i = 0; i< contours.size(); i++ )
