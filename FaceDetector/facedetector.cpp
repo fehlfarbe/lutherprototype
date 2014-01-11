@@ -29,15 +29,23 @@ Facedetector::Facedetector()
 	debug = true;
     bgSubtraction = true;
     detectionSize = Size(640, 480);
+    maxFaceDimension = 250;
+
+    //ROI
+    roiTop = 30;
+    roiBottom = 30;
+
+    //distance
     middleArea = 50;
     nearArea = 86;
 
+    //OSC Settings
 	oscAddr = "127.0.0.1";
     oscPort = 7000;
     oscBufferSize = 1024;
 
     //create Backgroundsubstractor
-    mBGSubtractor = new BackgroundSubtractorMOG2();
+    mBGSub = BackgroundSubtractorMOG2();
 
     //setup OSC Connection
     oscOutputBuffer = new char[oscBufferSize];
@@ -96,12 +104,39 @@ Mat Facedetector::detect(Mat& frame){
     cvtColor( frame_resized, frame_gray, CV_BGR2GRAY );
     equalizeHist( frame_gray, frame_gray );
 
+    //set ROI
+    frame_gray = Mat(frame_gray, Rect(0, roiTop, frame_gray.cols, frame_gray.rows-roiTop-roiBottom));
+
     //background subtraction
     if( bgSubtraction ){
-        mBGSubtractor->operator()(frame_resized, mBGMask);
-        Mat tmp;
-        frame_gray.copyTo(tmp, mBGMask);
-        tmp.copyTo(frame_gray);
+        mBGSub.operator ()(frame_gray, mBGMask);
+        Mat cont = mBGMask.clone();
+        //Mat tmp;
+        //frame_gray.copyTo(tmp, mBGMask);
+        //tmp.copyTo(frame_gray);
+
+        vector<vector<Point> > contours;
+        vector<Vec4i> hierarchy;
+
+        // Find contours
+        //RNG rng(12345);
+        findContours( cont, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+
+        // Draw contours
+        //Mat roi = Mat(frame_resized, Rect(0, roiTop, frame_gray.cols, frame_gray.rows-roiTop-roiBottom));
+
+        mFgROIs.clear();
+        for( int i = 0; i< contours.size(); i++ )
+        {
+            Rect r = boundingRect(contours[i]);
+            if( r.width >= 25 && r.height >= 25){
+                mFgROIs.push_back(r);
+                //Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+                //drawContours( roi, contours, i, color, 2, 8, hierarchy, 0, Point() );
+                rectangle(mBGMask, r, Scalar(255,255,255), 1);
+            }
+        }
+
 
         if( debug ){
             imshow("BGMask", mBGMask);
@@ -134,12 +169,41 @@ Mat Facedetector::detect(Mat& frame){
     }
 
     //face detection
-    vector<Rect> rects;
-    mFrontCascade.detectMultiScale(frame_gray, rects, 1.1, 12, 0|CV_HAAR_SCALE_IMAGE, Size(24, 24), Size(200, 200));
-    addFaces(rects, frame_gray, Face::FRONT);
-    rects.clear();
-    mProfileCascade.detectMultiScale(frame_gray, rects, 1.1, 12, 0|CV_HAAR_SCALE_IMAGE, Size(34, 20), Size(200, 200));
-    addFaces(rects, frame_gray, Face::PROFILE);
+    vector<Rect> rects; //possible faces
+    if( bgSubtraction ){
+        //look for faces in ROIs
+        for(unsigned int i=0; i<mFgROIs.size(); i++){
+            Mat FgROI = Mat(frame_gray, mFgROIs[i]);
+            Size maxSize = Size(mFgROIs[i].width, mFgROIs[i].height);
+
+            //detect frontfaces
+            mFrontCascade.detectMultiScale(FgROI, rects, 1.3, 3, 0|CV_HAAR_SCALE_IMAGE, Size(24, 24), maxSize);
+            //add offset
+            for(unsigned j=0; j<rects.size(); j++){
+                rects[j].x += mFgROIs[i].x;
+                rects[j].y += mFgROIs[i].y;
+            }
+            addFaces(rects, frame_gray, Face::FRONT);
+            rects.clear();
+
+            //detect profile faces
+            mProfileCascade.detectMultiScale(FgROI, rects, 1.3, 3, 0|CV_HAAR_SCALE_IMAGE, Size(34, 20), maxSize);
+            //add offset
+            for(unsigned j=0; j<rects.size(); j++){
+                rects[j].x += mFgROIs[i].x;
+                rects[j].y += mFgROIs[i].y;
+            }
+            addFaces(rects, frame_gray, Face::PROFILE);
+        }
+    } else {
+        //find faces in whole frame
+        mFrontCascade.detectMultiScale(frame_gray, rects, 1.3, 3, 0|CV_HAAR_SCALE_IMAGE, Size(24, 24), Size(200, 200));
+        addFaces(rects, frame_gray, Face::FRONT);
+        rects.clear();
+        mProfileCascade.detectMultiScale(frame_gray, rects, 1.3, 3, 0|CV_HAAR_SCALE_IMAGE, Size(34, 20), Size(200, 200));
+        addFaces(rects, frame_gray, Face::PROFILE);
+    }
+
 
     //send FaceList with OSC
     for(unsigned int i=0; i<mFaces.size(); i++){
@@ -182,9 +246,14 @@ vector<Face> Facedetector::getFaces(){
 
 void Facedetector::drawFaces(Mat& frame){
 
+    //set ROI
+    Mat roi = frame(Rect(0, roiTop, frame.cols, frame.rows-roiTop-roiBottom));
     for( size_t i = 0; i < mFaces.size(); i++ ){
-        mFaces[i].draw(frame, distance(mFaces[i].rect()));
+        mFaces[i].draw(roi, distance(mFaces[i].rect()));
     }
+
+    //draw ROI
+    rectangle(frame, Rect(0, roiTop, frame.cols, frame.rows-roiTop-roiBottom), Scalar(100, 100, 100));
 
 }
 
@@ -200,6 +269,10 @@ Face::FaceDistance Facedetector::distance(Rect r){
 void Facedetector::addFaces(vector<Rect> rects, Mat& frame, Face::FaceType type){
 
     for(unsigned int i=0; i<rects.size(); i++){
+
+        //continue if face is too big
+        if(rects[i].width > maxFaceDimension || rects[i].height > maxFaceDimension)
+            continue;
 
         bool add = true;
         for(unsigned j=0; j<mFaces.size(); j++){

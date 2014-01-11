@@ -38,8 +38,10 @@ int main( int argc, const char* argv[] )
 
     int count = 0;
     Mat frame, output;
+    time_t start, end;
     cap->read(frame);
 
+    // Setup detector
     Facedetector detector = Facedetector();
     detector.bgSubtraction = bgSub;
 
@@ -53,21 +55,26 @@ int main( int argc, const char* argv[] )
     }
 
     //Start endless loop
+    time(&start);
     while(!frame.empty()){
         count++;
-        clock_t t = clock();
 
         //face detection
         output = detector.detect(frame);
         vector<Face> faces = detector.getFaces();
+        //output = frame;
 
         //Ouput Window
-        float fps = 1.0f / ((float(clock()-t)/CLOCKS_PER_SEC));
+        time(&end);
+        double fps = double(count) / difftime(end, start);
         ostringstream stream;
         stream << faces.size() << " Faces detected (" << fps << " fps)";
         putText(output, stream.str(), Point(5, output.rows-10), 1, 1, Scalar(255, 255, 255));
         imshow("Output", output);
-        waitKey(1);
+        if( (waitKey(10) & 255) == 'c' ){
+            cout << "Abort..." << endl;
+            break;
+        }
 
         //write images
         if(writeIM){

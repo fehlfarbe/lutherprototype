@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <stdlib.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -34,9 +35,17 @@ public:
     vector<Face> getFaces();
 
 
+    //Settings
     bool debug;
     bool bgSubtraction;
     Size detectionSize;
+    int maxFaceDimension;
+
+    //Region of Interest
+    int roiTop;
+    int roiBottom;
+
+    //"distance measuring"
     int middleArea;
     int nearArea;
 
@@ -56,10 +65,10 @@ private:
     //tracking
     Mat mPrevGray;
 
-
     //background subtract
-    Ptr<BackgroundSubtractor> mBGSubtractor;
+    BackgroundSubtractorMOG2 mBGSub;
     Mat mBGMask;
+    vector<Rect> mFgROIs;
 
     //OSC Network
     char*    oscAddr;

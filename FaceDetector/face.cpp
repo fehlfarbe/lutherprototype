@@ -2,21 +2,27 @@
 
 Face::Face(Rect r, Mat &frame, FaceType type)
 {
-    cout << "new face" << endl;
-    update(r, frame, type);
-
     //set ID
     static int  counter = 0;
     mID = counter++;
 
     //set Starttime
-    mStartTime = clock();
+    time(&mStartTime);
+
 	middleDistance = 0;
     nearDistance = 0;
 
+    //set color
+    RNG rng(mStartTime);
+    mColor = Scalar( rng.uniform(0,255), rng.uniform(0,255), rng.uniform(0,255));
+
+    //initialize features
 	subPixWinSize = Size(5,5);
     winSize = Size(11,11);
     termcrit = TermCriteria(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS, 20, 0.03);
+
+    cout << "new face" << endl;
+    update(r, frame, type);
 }
 
 Face::~Face(){
@@ -122,10 +128,21 @@ bool Face::track(Mat& prev, Mat& curr){
     newPoints.resize(k);
     swap(mTrackPoints, newPoints);
 
-    if( mTrackPoints.size() < 4 )
+    if( mTrackPoints.size() < 10 )
         return false;
 
     mRect = boundingRect(mTrackPoints);
+
+    /*
+    if( mRect.width >= maxWidthHeight ){
+        mRect.x = mRect.x + mRect.width / 2 - maxWidthHeight / 2;
+        mRect.width = maxWidthHeight;
+    }
+    if( mRect.height >= maxWidthHeight ){
+        mRect.y = mRect.y + mRect.height / 2 - maxWidthHeight / 2;
+        mRect.height = maxWidthHeight;
+    }
+    */
 
     //update face
     updateFace(curr);
@@ -149,7 +166,7 @@ void Face::draw(Mat& frame, FaceDistance dist, bool features){
 
     // draw box + info
     ostringstream stream;
-    stream << mID << ": " << mRect.width << "x" << mRect.height << "px, " << mTrackPoints.size() << "feat";
+    stream << "[" << mID << "]" << mRect.width << "x" << mRect.height << "px, " << mTrackPoints.size() << "feat";
 
     //color
     Scalar c;
@@ -169,7 +186,8 @@ void Face::draw(Mat& frame, FaceDistance dist, bool features){
     }
 
     putText(frame, stream.str(), Point(mRect.x,mRect.y - 5), 1, 0.7, Scalar(255,255,255));
-    rectangle(frame, mRect, c, 2);
+    rectangle(frame, mRect, mColor, 2);
+    circle(frame, Point(mRect.x, mRect.y), 8, c, -1);
 
 
     //draw features
@@ -184,20 +202,19 @@ void Face::draw(Mat& frame, FaceDistance dist, bool features){
         motionVec.y += center().y;
         line(frame, center(), motionVec, Scalar(255, 255, 0), 2);
 
+        /*
         int a = mRect.x - center().x,
             b = mRect.y - center().y;
         int radius = sqrt(double(a*a+b*b));
         circle(frame, center(), radius, Scalar(100, 100, 100));
-
-        //Rect brect = boundingRect(mTrackPoints);
-        //rectangle(frame, brect, Scalar(150, 150, 150), 1);
+        */
     }
 }
 
 void Face::updateFace(Mat& frame){
     Rect r = mRect;
 
-    cout << r.x + r.width << "/" << frame.cols;
+    //cout << r.x + r.width << "/" << frame.cols;
     r.x = r.x < 0 ? 0 : r.x;
     r.x = r.x >= frame.cols ? frame.cols-1 : r.x;
     r.width = r.x + r.width >= frame.cols ? frame.cols-1-r.x : r.width;
@@ -220,7 +237,9 @@ int Face::id(){
 }
 
 int Face::duration(){
-    return ( clock() - mStartTime ) / (double) CLOCKS_PER_SEC;
+    time_t end;
+    time(&end);
+    return ( end - mStartTime );
 }
 
 Point Face::motionVec(){
