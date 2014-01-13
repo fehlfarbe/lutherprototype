@@ -24,9 +24,9 @@ public:
     void release();
 
     //getter
-    Point center();
-    Point motionVec();
-    Rect rect();
+    Point   center();
+    Point   motionVec();
+    Rect    rect();
     int     id();
     int     duration();
 
@@ -36,6 +36,7 @@ public:
 
     int middleDistance;
     int nearDistance;
+    static const int maxWidthHeight = 200;
     bool isSimilar(Rect r);
     bool track(Mat& prev, Mat &curr);
     void show(int ms = 10);
@@ -45,10 +46,11 @@ public:
 private:
 
     int         mID;
-    clock_t     mStartTime;
+    time_t      mStartTime;
     Rect        mRect;
     FaceType    mType;
     Mat         mFace;
+    Scalar      mColor;
 
     void updateFace(Mat& frame);
 
@@ -57,6 +59,7 @@ private:
     Size winSize;
     TermCriteria termcrit;
     vector<Point2f> mTrackPoints;
+    vector<uchar> mStatus;
     Point2f mMotionVector;
 };
 
