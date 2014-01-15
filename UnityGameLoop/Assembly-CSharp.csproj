@@ -57,6 +57,7 @@
      <Compile Include="Assets\Scripts\UnityOSCReceiver.cs" />
      <Compile Include="Assets\Scripts\thesen.cs" />
      <Compile Include="Assets\Scripts\worms.cs" />
+     <None Include="Assets\blendTexture.shader" />
      <None Include="Assets\transparentMovieTexture.shader" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

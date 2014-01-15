@@ -23,6 +23,7 @@ public class UnityOSCListenerWorms : MonoBehaviour  {
 			break;
 		case "/facelist":
 			GameObject.Find("init").GetComponent<worms>().handleFacelist((int)args[0], (int)args[3]);
+			//Debug.Log("facelist "+args[0]+" "+args[3]);
 			break;
 		case "/end":
 			Debug.Log("Erkennung beendet");
