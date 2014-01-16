@@ -7,6 +7,8 @@ public class Charakter : MonoBehaviour {
 	public AudioClip[] audioclips;
 	private Dictionary<string, AudioSource> speech;
 
+	public GameObject pl_text;
+
 	private int faceID;
 
 	public bool fromLeft;
@@ -18,8 +20,10 @@ public class Charakter : MonoBehaviour {
 
 	public bool isFading = false;
 	private bool isLooking = false;
+	private bool isTextMoving = false;
 	private float fadeValue;
 	private float lookValue;
+	private float textMoveValue;
 	private int motionFactor = 0;
 
 	private string keyPlaying = "";
@@ -60,7 +64,7 @@ public class Charakter : MonoBehaviour {
 			if(color.a == 0.0f)
 				this.transform.position = new Vector3(this.transform.position.x, 0, this.transform.position.z);
 		}*/
-
+		// Ein-/Ausblend-Animation
 		if(isFading) {
 			float incr = fadeValue * Time.deltaTime;
 			float blend = 1.0f - this.renderer.material.GetFloat("_Blend2");
@@ -71,11 +75,12 @@ public class Charakter : MonoBehaviour {
 			else 
 				blend += incr;
 			this.renderer.material.SetFloat("_Blend2", 1.0f - blend);
+			pl_text.renderer.material.SetFloat("_Blend", blend);
 			if(blend == 1.0f || blend == 0.0f) {
 				isFading = false;
 			}
 		}
-
+		// Rede-Animation
 		if(isLooking) {
 			float incr = lookValue * Time.deltaTime;
 			float blend = this.renderer.material.GetFloat("_Blend");
@@ -88,6 +93,25 @@ public class Charakter : MonoBehaviour {
 			this.renderer.material.SetFloat("_Blend", blend);
 			if(blend == 1.0f || blend == 0.0f) {
 				isLooking = false;
+			}
+		}
+		// Textanimation
+		if(isTextMoving) {
+			float incr = textMoveValue * Time.deltaTime;
+			float x = pl_text.transform.position.x;
+			float blend = x - incr;
+			if(blend > 0.0f) {
+				x = 0.0f;
+				pl_text.transform.position.Set(x, pl_text.transform.position.y, pl_text.transform.position.z);
+			}
+			else if(blend < -3.5f) {
+				x = -3.5f;
+				pl_text.transform.position.Set(x, pl_text.transform.position.y, pl_text.transform.position.z);
+			}
+			else 
+				pl_text.transform.Translate(-incr, 0, 0, Space.World);
+			if(blend == -3.5f || blend == 0.0f) {
+				isTextMoving = false;
 			}
 		}
 
@@ -114,6 +138,7 @@ public class Charakter : MonoBehaviour {
 			string s = key + i.ToString();
 			i++;
 			Debug.Log("/"+s+"/");
+			Debug.Log("speech " + speech);
 			if(speech.ContainsKey(s)) {
 				Debug.Log("add");
 				list.Add(s);
@@ -149,6 +174,11 @@ public class Charakter : MonoBehaviour {
 		isFading = true;
 	}
 
+	public void animateText(float f) {
+		textMoveValue = f;
+		isTextMoving = true;
+	}
+
 	public void setMotionFactor(int f) {
 		motionFactor = f;
 	}
@@ -156,6 +186,7 @@ public class Charakter : MonoBehaviour {
 	public void resetCharakter() {
 		setFaceID(-1);
 		fade(-0.5f);
+		animateText(-2.0f);
 		setMotionFactor(0);
 	}
 }
