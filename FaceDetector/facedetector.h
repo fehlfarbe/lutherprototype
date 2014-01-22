@@ -14,6 +14,7 @@
 #include <opencv2/video/tracking.hpp>
 
 #include <face.h>
+#include <logger.h>
 
 #include "osc/OscOutboundPacketStream.h"
 #include "ip/UdpSocket.h"
@@ -63,7 +64,7 @@ private:
     vector<Face> mFaces;
 
     //tracking
-    Mat mPrevGray;
+    Mat mPrev;
 
     //background subtract
     BackgroundSubtractorMOG2 mBGSub;
@@ -76,6 +77,9 @@ private:
     int      oscBufferSize;
     char*    oscOutputBuffer;
     UdpTransmitSocket* oscTransmitSocket;
+
+    //Logging
+    Logger* mLog;
 
 
 };

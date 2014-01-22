@@ -28,7 +28,7 @@ public:
     Point   motionVec();
     Rect    rect();
     int     id();
-    int     duration();
+    int     duration(time_t* start, time_t* end);
 
 
     void    draw(Mat& frame, FaceDistance dist = UNKNOWN, bool features = true);
@@ -38,7 +38,8 @@ public:
     int nearDistance;
     static const int maxWidthHeight = 200;
     bool isSimilar(Rect r);
-    bool track(Mat& prev, Mat &curr);
+    bool isSimilar(Face f);
+    bool track(Mat &prev, Mat &curr);
     void show(int ms = 10);
 
 
@@ -61,6 +62,10 @@ private:
     vector<Point2f> mTrackPoints;
     vector<uchar> mStatus;
     Point2f mMotionVector;
+
+    //camshift
+    Mat mBackProjection;
+    RotatedRect mTrackBox;
 };
 
 #endif // FACE_H
