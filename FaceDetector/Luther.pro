@@ -4,7 +4,8 @@ CONFIG -= qt
 
 SOURCES += main.cpp \
     facedetector.cpp \
-    face.cpp
+    face.cpp \
+    logger.cpp
 
 ########## OpenCV
 
@@ -25,4 +26,5 @@ CONFIG+=link_pkgconfig PKGCONFIG+=opencv
 
 HEADERS += \
     facedetector.h \
-    face.h
+    face.h \
+    logger.h

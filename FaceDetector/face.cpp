@@ -59,15 +59,76 @@ void Face::update(Rect r, Mat& frame, FaceType type){
 
     mType = type;
 
-    Mat mask(frame.size(), CV_8UC1);
+
+    /*******************************
+     *
+     * Feature detection
+     *
+     ******************************/
+    //convert to grayscale for corner detecttion
+    Mat frame_gray;
+    if( frame.channels() > 1)
+        cvtColor(frame, frame_gray, CV_BGR2GRAY);
+    else
+        frame_gray = frame;
+
+    //equalize histogram
+    equalizeHist(frame_gray, frame_gray);
+
+    Mat mask(frame_gray.size(), CV_8UC1);
     mask.setTo(Scalar::all(0));
     rectangle(mask, r, Scalar(255,255,255), -1);
 
 
     mTrackPoints.clear();
-    goodFeaturesToTrack(frame, mTrackPoints, 100, 0.01, 5, mask, 3, 0, 0.04);
-    //if( mTrackPoints.size() > 0)
-    //    cornerSubPix(frame, mTrackPoints, subPixWinSize, Size(-1,-1), termcrit);
+    goodFeaturesToTrack(frame_gray, mTrackPoints, 100, 0.01, 5, mask, 3, 0, 0.04);
+    if( mTrackPoints.size() > 0)
+        cornerSubPix(frame_gray, mTrackPoints, subPixWinSize, Size(-1,-1), termcrit);
+
+    /********************************
+     *
+     * Camshift Histogram
+     *
+     ********************************/
+    Mat histimg = Mat::zeros(200, 320, CV_8UC3);
+    Mat hsv, hue, hist;
+    int hsize = 16;
+    float hranges[] = {0,180};
+    const float* phranges = hranges;
+
+    cvtColor(frame, hsv, COLOR_BGR2HSV);
+
+    int ch[] = {0, 0};
+    hue.create(hsv.size(), hsv.depth());
+    mixChannels(&hsv, 1, &hue, 1, ch, 1);
+
+    Mat roi(hue, r), maskroi(mask, r);
+
+    calcHist(&roi, 1, 0, maskroi, hist, 1, &hsize, &phranges);
+    normalize(hist, hist, 0, 255, CV_MINMAX);
+
+    //draw hist
+//    histimg = Scalar::all(0);
+//    int binW = histimg.cols / hsize;
+//    Mat buf(1, hsize, CV_8UC3);
+//    for( int i = 0; i < hsize; i++ )
+//        buf.at<Vec3b>(i) = Vec3b(saturate_cast<uchar>(i*180./hsize), 255, 255);
+//    cvtColor(buf, buf, CV_HSV2BGR);
+
+//    for( int i = 0; i < hsize; i++ )
+//    {
+//        int val = saturate_cast<int>(hist.at<float>(i)*histimg.rows/255);
+//        rectangle( histimg, Point(i*binW,histimg.rows),
+//                   Point((i+1)*binW,histimg.rows - val),
+//                   Scalar(buf.at<Vec3b>(i)), -1, 8 );
+//    }
+
+    calcBackProject(&hue, 1, 0, hist, mBackProjection, &phranges);
+    mBackProjection &= mask;
+    mTrackBox = CamShift(mBackProjection, r, TermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ));
+
+//    imshow("hist", mBackProjection);
+//    waitKey(100);
 
 
     updateFace(frame);
@@ -75,20 +136,20 @@ void Face::update(Rect r, Mat& frame, FaceType type){
 
 bool Face::isSimilar(Rect r){
 
-    //TODO: is middlepoint in circle?
-    int a = mRect.x - center().x,
-        b = mRect.y - center().y;
-    int radius = sqrt(double(a*a+b*b));
+//    //TODO: is middlepoint in circle?
+//    int a = mRect.x - center().x,
+//        b = mRect.y - center().y;
+//    int radius = sqrt(double(a*a+b*b));
 
-    a = r.x - center().x,
-    b = r.y - center().y;
-    int distance = sqrt(double(a*a+b*b));
+//    a = r.x - center().x,
+//    b = r.y - center().y;
+//    int distance = sqrt(double(a*a+b*b));
 
-    //cout << radius << ", " << distance << endl;
+//    //cout << radius << ", " << distance << endl;
 
 
-    if( radius > distance)
-        return true;
+//    if( radius > distance)
+//        return true;
 
     Rect intersect = r & mRect;
     if( intersect.size().area() > 0){
@@ -98,7 +159,47 @@ bool Face::isSimilar(Rect r){
     return false;
 }
 
+bool Face::isSimilar(Face f){
+
+    Rect r = f.rect() & mRect;
+
+    if( r.area() >= mRect.area() || r.area() >= f.rect().area() )
+        return true;
+
+    return false;
+}
+
 bool Face::track(Mat& prev, Mat& curr){
+
+    /*********************************
+     *
+     * Camshift
+     *
+     *********************************/
+    Rect window = mRect;
+    mTrackBox = CamShift(mBackProjection, window, TermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ));
+
+
+    /*********************************
+     *
+     * optical flow
+     *
+     *********************************/
+
+    //convert to gray images
+    Mat current, previous;
+    if( curr.channels() > 1)
+        cvtColor(curr, current, CV_BGR2GRAY);
+    else
+        current = curr;
+    if( prev.channels() > 1)
+        cvtColor(prev, previous, CV_BGR2GRAY);
+    else
+        previous = prev;
+
+    //equalize histograms
+    equalizeHist(current, current);
+    equalizeHist(previous, previous);
 
     if( mTrackPoints.empty() )
         return false;
@@ -107,15 +208,16 @@ bool Face::track(Mat& prev, Mat& curr){
     vector<float> err;
     vector<Point2f> newPoints;
 
-    if(prev.empty())
-        curr.copyTo(prev);
+    if(previous.empty())
+        current.copyTo(previous);
 
-    calcOpticalFlowPyrLK(prev, curr, mTrackPoints, newPoints, status, err, winSize, 3, termcrit, 0, 0.001);
+    calcOpticalFlowPyrLK(previous, current, mTrackPoints, newPoints, status, err, winSize, 3, termcrit, 0, 0.001);
 
     size_t i, k;
     int notfound = 0;
     Point2f motionVec;
 
+    //look recognized features
     for( i = k = 0; i < newPoints.size(); i++ )
     {
 
@@ -136,10 +238,12 @@ bool Face::track(Mat& prev, Mat& curr){
 
     }
 
-    motionVec.x /= k;
-    motionVec.y /= k;
+    //motion vector
+    motionVec.x /= 10;
+    motionVec.y /= 10;
     mMotionVector = motionVec;
 
+    //setup point lists
     newPoints.resize(k);
     swap(mTrackPoints, newPoints);
     mStatus = status;
@@ -147,7 +251,18 @@ bool Face::track(Mat& prev, Mat& curr){
     if( notfound > mTrackPoints.size()/2 )
         return false;
 
-    mRect = boundingRect(mTrackPoints);
+
+    /*********************************
+     *
+     * combine optical flow & camshift rects
+     *
+     *********************************/
+    Rect r = boundingRect(mTrackPoints) & mTrackBox.boundingRect();
+    //cout << r << " " << mRect << endl;
+    if( r.width  > 10 && r.height > 10 )
+        mRect = r;
+    else
+       mRect = boundingRect(mTrackPoints);
 
     /*
     if( mRect.width >= maxWidthHeight ){
@@ -161,8 +276,7 @@ bool Face::track(Mat& prev, Mat& curr){
     */
 
     //update face
-    updateFace(curr);
-
+    updateFace(current);
 
     return true;
 }
@@ -180,7 +294,11 @@ Rect Face::rect(){
 
 void Face::draw(Mat& frame, FaceDistance dist, bool features){
 
-    // draw box + info
+    /******************************
+     *
+     * draw box + info
+     *
+     ******************************/
     ostringstream stream;
     stream << "[" << mID << "] " << mRect.width << "x" << mRect.height << "px, " << mTrackPoints.size() << "feat";
 
@@ -214,8 +332,19 @@ void Face::draw(Mat& frame, FaceDistance dist, bool features){
 
     //circle(frame, Point(mRect.x, mRect.y), 8, c, -1);
 
+    /***************************
+     *
+     * draw Camshift
+     *
+     ***************************/
+    ellipse( frame, mTrackBox, mColor, 1, CV_AA );
 
-    //draw features
+
+    /***************************
+     *
+     * draw features
+     *
+     **************************/
     if( features ){
         for(unsigned int i=0; i < mTrackPoints.size(); i++){
             Scalar color = Scalar(0, 255, 0);
@@ -233,13 +362,6 @@ void Face::draw(Mat& frame, FaceDistance dist, bool features){
         motionVec.x += center().x;
         motionVec.y += center().y;
         line(frame, center(), motionVec, Scalar(255, 255, 0), 1);
-
-        /*
-        int a = mRect.x - center().x,
-            b = mRect.y - center().y;
-        int radius = sqrt(double(a*a+b*b));
-        circle(frame, center(), radius, Scalar(100, 100, 100));
-        */
     }
 }
 
@@ -258,20 +380,21 @@ void Face::updateFace(Mat& frame){
     mFace = Mat(frame, r);
 
 
-/*    ostringstream stream;
-    stream << mID;
-    imshow(stream.str(), mFace);
-    waitKey(10)*/;
+//    ostringstream stream;
+//    stream << mID;
+//    imshow(stream.str(), mFace);
+//    waitKey(10);
 }
 
 int Face::id(){
     return mID;
 }
 
-int Face::duration(){
-    time_t end;
-    time(&end);
-    return ( end - mStartTime );
+int Face::duration(time_t *start, time_t *end){
+    time(end);
+    (*start) = mStartTime;
+
+    return ( (*end) - mStartTime );
 }
 
 Point Face::motionVec(){

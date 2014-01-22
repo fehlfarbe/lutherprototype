@@ -57,6 +57,15 @@ Facedetector::Facedetector()
       << osc::EndMessage
       << osc::EndBundle;
     oscTransmitSocket->Send( p.Data(), p.Size() );
+
+    //Setup Logger
+    time_t filename = time(0);
+    char date_buff[40];
+    struct tm* my_tm = localtime(&filename);
+    strftime(date_buff, sizeof(date_buff), "%Y-%m-%d", my_tm);
+    ostringstream stream;
+    stream << date_buff << ".csv";
+    mLog = new Logger(stream.str());
 }
 
 
@@ -74,11 +83,13 @@ Facedetector::~Facedetector(){
     delete[] oscOutputBuffer;
     delete oscTransmitSocket;
 
+    //logger
+    delete mLog;
+
 }
 
 
 bool Facedetector::loadFrontCascade(char* cascade){
-
     return mFrontCascade.load(cascade);
 
 }
@@ -92,7 +103,11 @@ Mat Facedetector::detect(Mat& frame){
 
     Mat frame_gray, frame_resized;
 
-    // resize frame
+    /************************
+     *
+     * resize image
+     *
+     ***********************/
     if( frame.cols > detectionSize.width){
         double scale = double(detectionSize.width) / frame.cols;
         resize(frame, frame_resized, Size(detectionSize.width, frame.rows * scale));
@@ -100,16 +115,20 @@ Mat Facedetector::detect(Mat& frame){
         frame.copyTo(frame_resized);
     }
 
+    Mat frame_roi = Mat(frame_resized, Rect(0, roiTop, frame_resized.cols, frame_resized.rows-roiTop-roiBottom));
+
     //convert to grayscale, equalize histogram
-    cvtColor( frame_resized, frame_gray, CV_BGR2GRAY );
+    cvtColor( frame_roi, frame_gray, CV_BGR2GRAY );
     equalizeHist( frame_gray, frame_gray );
 
-    //set ROI
-    frame_gray = Mat(frame_gray, Rect(0, roiTop, frame_gray.cols, frame_gray.rows-roiTop-roiBottom));
 
-    //background subtraction
+    /************************
+     *
+     * background subtraction
+     *
+     ***********************/
     if( bgSubtraction ){
-        mBGSub.operator ()(frame_gray, mBGMask);
+        mBGSub.operator ()(frame_roi, mBGMask);
         Mat cont = mBGMask.clone();
 
         vector<vector<Point> > contours;
@@ -118,27 +137,35 @@ Mat Facedetector::detect(Mat& frame){
         findContours( cont, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, Point(0, 0) );
 
         mFgROIs.clear();
-        for( int i = 0; i< contours.size(); i++ )
+        RNG rng(12345);
+        for(unsigned int i = 0; i< contours.size(); i++ )
         {
-            Rect r = boundingRect(contours[i]);
-            if( r.width >= 25 && r.height >= 25){
-                mFgROIs.push_back(r);
+            Rect bound = boundingRect(contours[i]);
+            if( bound.width >= 25 && bound.height >= 25){
+                mFgROIs.push_back(bound);
                 //Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-                //drawContours( roi, contours, i, color, 2, 8, hierarchy, 0, Point() );
-                rectangle(mBGMask, r, Scalar(255,255,255), 1);
+                //drawContours( frame_resized, contours, i, color, 1, 8, hierarchy, 0, Point(0, roiTop) );
+                rectangle(mBGMask, bound, Scalar(200,200,200), 1);
             }
         }
 
-
         if( debug ){
+            Mat temp;
+            mBGSub.getBackgroundImage(temp);
+            imshow("BackgroundModel", temp);
+            waitKey(1);
             imshow("BGMask", mBGMask);
-            waitKey(10);
+            waitKey(1);
         }
     }
 
-    //delete escaped faces
+    /************************
+     *
+     * track and delete old faces
+     *
+     ***********************/
     for(unsigned int i = 0; i<mFaces.size(); i++){
-        if( !mFaces[i].track(mPrevGray, frame_gray) ){
+        if( !mFaces[i].track(mPrev, frame_gray) ){
             cout << "delete element with id " << mFaces[i].id() << endl;
 
             //send escaped face ID with OSC
@@ -149,8 +176,12 @@ Mat Facedetector::detect(Mat& frame){
               << osc::EndBundle;
             oscTransmitSocket->Send( p.Data(), p.Size() );
 
-            //get duration time
-            int dur = mFaces[i].duration();
+            //log time
+            time_t start, end;
+            int dur = mFaces[i].duration(&start, &end);
+            ostringstream stream;
+            stream << mFaces[i].id() << "," << start << "," << end << "," << dur;
+            mLog->log(stream.str().c_str());
             cout << "Face " << mFaces[i].id() << " was " << dur << "s detected" << endl;
 
             //delete element
@@ -160,7 +191,44 @@ Mat Facedetector::detect(Mat& frame){
         }
     }
 
-    //face detection
+    /************************
+     *
+     * track and duplicate faces
+     *
+     ***********************/
+    for(unsigned int i = 0; i<mFaces.size(); i++){
+        for(unsigned int j=0; j<mFaces.size(); j++){
+            if( j != i){
+                if(mFaces[i].isSimilar(mFaces[j])){
+                    cout << mFaces[i].id() << " similar to " << mFaces[j].id() << endl;
+                    Rect r;
+                    if( mFaces[i].rect().area() > mFaces[j].rect().area())
+                        r = mFaces[j].rect();
+                    else
+                        r = mFaces[i].rect();
+
+                    mFaces[i].update(r, frame_roi);
+
+                    //log time
+                    time_t start, end;
+                    int dur = mFaces[j].duration(&start, &end);
+                    ostringstream stream;
+                    stream << mFaces[j].id() << "," << start << "," << end << "," << dur;
+                    mLog->log(stream.str().c_str());
+                    cout << "Face " << mFaces[j].id() << " was " << dur << "s detected" << endl;
+
+                    mFaces.erase(mFaces.begin() + j);
+                    j--;
+                }
+            }
+        }
+    }
+
+    /************************
+     *
+     * face detection
+     *
+     ***********************/
     vector<Rect> rects; //possible faces
     if( bgSubtraction ){
         //look for faces in ROIs
@@ -175,7 +243,7 @@ Mat Facedetector::detect(Mat& frame){
                 rects[j].x += mFgROIs[i].x;
                 rects[j].y += mFgROIs[i].y;
             }
-            addFaces(rects, frame_gray, Face::FRONT);
+            addFaces(rects, frame_roi, Face::FRONT);
             rects.clear();
 
             //detect profile faces
@@ -185,7 +253,7 @@ Mat Facedetector::detect(Mat& frame){
                 rects[j].x += mFgROIs[i].x;
                 rects[j].y += mFgROIs[i].y;
             }
-            addFaces(rects, frame_gray, Face::PROFILE);
+            addFaces(rects, frame_roi, Face::PROFILE);
         }
     } else {
         //find faces in whole frame
@@ -197,7 +265,11 @@ Mat Facedetector::detect(Mat& frame){
     }
 
 
-    //send FaceList with OSC
+    /************************
+     *
+     * send OSC facelist
+     *
+     ***********************/
     for(unsigned int i=0; i<mFaces.size(); i++){
         osc::OutboundPacketStream p( oscOutputBuffer, oscBufferSize );
         p << osc::BeginBundleImmediate
@@ -213,7 +285,18 @@ Mat Facedetector::detect(Mat& frame){
         oscTransmitSocket->Send( p.Data(), p.Size() );
     }
 
-    //draw faces
+    /************************
+     *
+     * save frame for tracking
+     *
+     ***********************/
+    mPrev = frame_roi.clone();
+
+    /************************
+     *
+     * draw faces
+     *
+     ***********************/
     drawFaces(frame_resized);
 
 
@@ -223,8 +306,6 @@ Mat Facedetector::detect(Mat& frame){
         waitKey(10);
     }
 
-    //save last frame
-    swap(frame_gray, mPrevGray);
 
     return frame_resized;
 }
