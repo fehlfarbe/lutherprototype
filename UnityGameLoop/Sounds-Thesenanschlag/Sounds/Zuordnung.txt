@@ -1,0 +1,11 @@
+Video				Sound1		Sound2		Sound3
+0_luther-aus-bild1		footsteps-4
+0_luther-aus-bild2		footsteps-4
+0_luther-ins-bild		footsteps-4
+0_luther-plakat-leer		
+1_luther_Idle			hammer/hammer-1
+1-5_luther_schreck		aaaah/uh	whistling	footsteps-4
+2_luther_aufmerksamkeit2	hello-4/ pssst-1/ pssst-2/ woohoo
+3_luther_Anschlagen2		hammer/hammer-1	whistling
+4_luther_Reaktion2		weather_wind_02_NifterDotCom	footsteps-4
+5_luther_schreck2		aaaah/uh	whistling	footsteps-4

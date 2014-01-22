@@ -3,13 +3,22 @@ using System.Collections;
 using System;
 using System.IO.Ports;
 using System.IO;
+using System.Collections.Generic;
 
 public class thesen : MonoBehaviour {
 
 	public MovieTexture movTexture;
 	public MovieTexture[] movarr;
 
+	public AudioClip[] audioclips;
+
+	private ArrayList sounds;
+
 	public Status status;
+
+	private System.Random rand;
+
+	private int lastAudio = 0;
 
 	public enum Status {
 		Idle,
@@ -33,13 +42,25 @@ public class thesen : MonoBehaviour {
 
 	// Use this for initialization
 	void Start() {
+		sounds =  new ArrayList();
+
+		rand = new System.Random();
+
+		foreach(AudioClip ac in audioclips) {
+			AudioSource asource = this.gameObject.AddComponent<AudioSource>();
+			asource.clip = ac;
+			asource.playOnAwake = false;
+			sounds.Add(asource); 
+		}
+
 
 		//movTexture = Resources.Load("Vids/luther_hammer", typeof(MovieTexture)) as MovieTexture;
-		setMovTexture(1, true);
+		setMovTexture(1, true, 0);
 		status = Status.Idle;
 		aktuellerBereich = Bereich.Leer;
 		letzterZeitstempel = Time.time;
 		oscZeitstempel = Time.time;
+
 	}
 
 	// Update is called once per frame
@@ -48,34 +69,57 @@ public class thesen : MonoBehaviour {
 		if (Input.GetKeyUp(KeyCode.F1)) {
 			//setMovTexture(1);
 			//status = Status.Idle;
+			setMovTexture(1, true, 0);
 			aktuellerBereich = Bereich.Leer;
 			letzterZeitstempel = Time.time;
+			oscZeitstempel = 0;
+			status = Status.Idle;
 		}
 		else if (Input.GetKeyUp(KeyCode.F2)) {
+			setMovTexture(2, true, rand.Next(1,4));
 			//setMovTexture(2);
 			//status = Status.Aufmerksam;
 			aktuellerBereich = Bereich.Fern;
 			letzterZeitstempel = Time.time;
+			oscZeitstempel = 0;
+			status = Status.Aufmerksam;
 		}
 		else if (Input.GetKeyUp(KeyCode.F3)) {
 			//setMovTexture(3);
 			//status = Status.Idle;
+			setMovTexture(3, true, 8);
 			aktuellerBereich = Bereich.Mittel;
 			letzterZeitstempel = Time.time;
+			oscZeitstempel = 0;
+			status = Status.Anschlagen;
 		}
 		else if (Input.GetKeyUp(KeyCode.F4)) {
 			//setMovTexture(4);
 			//status = Status.Aufmerksam;
+			setMovTexture(4, false, 7);
 			aktuellerBereich = Bereich.Nah;
 			letzterZeitstempel = Time.time;
-		}
+			oscZeitstempel = 0;
+			status = Status.Reaktion;
+		} 
+		else if (Input.GetKeyUp(KeyCode.F5)) {
+			//setMovTexture(4);
+			//status = Status.Aufmerksam;
+			setMovTexture(5, false, rand.Next(4,7));
+			aktuellerBereich = Bereich.Nah;
+			letzterZeitstempel = Time.time;
+			oscZeitstempel = 0;
+			status = Status.Schreck;
+		} 
 
+		/*
 		if(status != Status.Idle && Time.time - oscZeitstempel > 4.0f) {
 			status = Status.Idle;
 			aktuellerBereich = Bereich.Leer;
-			setMovTexture(1, true);
+			oscZeitstempel = 0;
+			setMovTexture(1, true, 0);
 			Debug.Log("Status.IDLE");
-		}
+		}*/
 
 		// GameLoop
 			
@@ -99,29 +143,40 @@ public class thesen : MonoBehaviour {
 		}
 	}
 
-	private void setMovTexture(int nr, bool loop) {
+	private void setMovTexture(int nr, bool loop, int audioNr) {
 		movTexture = movarr[nr-1];
 		renderer.material.mainTexture = movTexture;
 		movTexture.Stop();
 		movTexture.loop = loop;
 		movTexture.Play();
+
+
+
+		if (((AudioSource)sounds [lastAudio]).isPlaying)
+			((AudioSource)sounds [lastAudio]).Stop ();
+
+		//audio.clip = movTexture.audioClip;
+		//audio.Play();
+		((AudioSource)sounds[audioNr]).Play();
+
+		lastAudio = audioNr;
 	}
 
 	private void idle() {
 		if(aktuellerBereich == Bereich.Fern) {
-			setMovTexture(2, true);
+			setMovTexture(2, true, rand.Next(1,4));
 			status = Status.Aufmerksam;
 			// TODO: Übergangssequenzen
 
 		}
 		if(aktuellerBereich == Bereich.Mittel) {
-			setMovTexture(3, true);
+			setMovTexture(3, true, 8);
 			status = Status.Anschlagen;
 			// TODO: Übergangssequenzen
 			
 		}
 		if(aktuellerBereich == Bereich.Nah) {
-			setMovTexture(5, false);
+			setMovTexture(5, false, rand.Next(4,7));
 			status = Status.Schreck;
 			// TODO: Übergangssequenzen
 			
@@ -135,19 +190,19 @@ public class thesen : MonoBehaviour {
 
 	private void aufmerksam() {
 		if(aktuellerBereich == Bereich.Nah) {
-			setMovTexture(5, false);
+			setMovTexture(5, false, rand.Next(4,7));
 			status = Status.Schreck;
 			// TODO: Übergangssequenzen
 			
 		}
 		if(aktuellerBereich == Bereich.Mittel /*|| warNutzerInaktiv(5)*/) {
-			setMovTexture(3, true);
-			status = Status.Anschlagen;
+			setMovTexture(3, true, 8);
+			status = Status.Anschlagen;	
 			// TODO: Übergangssequenzen
 			
 		}
 		if(aktuellerBereich == Bereich.Leer) {
-			setMovTexture(1, true);
+			setMovTexture(1, true, 0);
 			status = Status.Idle;
 			// TODO: Übergangssequenzen
 			
@@ -156,13 +211,13 @@ public class thesen : MonoBehaviour {
 
 	private void anschlagen() {
 		if (aktuellerBereich == Bereich.Leer /*|| warNutzerInaktiv(5)*/) {
-			setMovTexture(1, true);
+			setMovTexture(1, true, 0);
 			status = Status.Idle;
 		} else if (aktuellerBereich == Bereich.Fern) {
-			setMovTexture(2, true);
+			setMovTexture(2, true, rand.Next(1,4));
 			status = Status.Aufmerksam;
 		} else if (aktuellerBereich == Bereich.Nah) {
-			setMovTexture(4, false);
+			setMovTexture(4, false, 7);
 			status = Status.Reaktion;
 		}
 	}
@@ -200,7 +255,7 @@ public class thesen : MonoBehaviour {
 
 	private void schreck() {
 		if (aktuellerBereich == Bereich.Leer) {
-			setMovTexture(1, true);
+			setMovTexture(1, true, 0);
 			status = Status.Idle;
 		}
 	}
