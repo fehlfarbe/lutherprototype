@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using System.IO.Ports;
+using System.IO;
 
 public class thesen : MonoBehaviour {
 
@@ -168,27 +169,32 @@ public class thesen : MonoBehaviour {
 
 	private void reaktion() {
 
-		#region Druckeransteuerung
-		// create SerialPort("COM3", 9600);
-		SerialPort port = new SerialPort("DruckerImpuls", 9600);
-		try
-		{
-			port.Open();
-			port.Write("1"); // "write something, nevermind what
+		string path = "auswurf_port.txt";
+		try {
+			string[] filecontent = File.ReadAllLines(path);
+			Debug.Log(filecontent[0]);
+			Debug.Log(Convert.ToInt32(filecontent[1]));
+			
+			#region Druckeransteuerung
+			// create SerialPort("COM3", 9600);
+			SerialPort port = new SerialPort(filecontent[0], Convert.ToInt32(filecontent[1]));
+			try
+			{
+				port.Open();
+				port.Write("1"); // "write something, nevermind what
+			}
+			catch (Exception e)
+			{
+				Debug.Log(e);
+			}
+			finally
+			{
+				port.Close();
+			}
+			#endregion
 		}
-		catch (Exception e)
-		{
-			Debug.Log(e);
-		}
-		finally
-		{
-			port.Close();
-		}
-		#endregion
-
-		if (aktuellerBereich == Bereich.Leer) {
-			setMovTexture(1, true);
-			status = Status.Idle;
+		catch (Exception e) {
+			Debug.Log("no access file "+path+e);
 		}
 	}
 
