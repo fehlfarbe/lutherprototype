@@ -227,12 +227,12 @@ public class thesen : MonoBehaviour {
 		string path = "auswurf_port.txt";
 		try {
 			string[] filecontent = File.ReadAllLines(path);
-			Debug.Log(filecontent[0]);
-			Debug.Log(Convert.ToInt32(filecontent[1]));
+			Debug.Log(filecontent[1]);
+			Debug.Log(Convert.ToInt32(filecontent[3]));
 			
 			#region Druckeransteuerung
 			// create SerialPort("COM3", 9600);
-			SerialPort port = new SerialPort(filecontent[0], Convert.ToInt32(filecontent[1]));
+			SerialPort port = new SerialPort(filecontent[1], Convert.ToInt32(filecontent[3]));
 			try
 			{
 				port.Open();

@@ -17,21 +17,26 @@ public class Charakter : MonoBehaviour {
 
 	public float initialPos = 0.0f;
 	public Vector2 range = new Vector2(-5.0f, 5.0f);
+	public float maxTextX = -3.5f;
 
 	public bool isFading = false;
 	private bool isLooking = false;
 	private bool isTextMoving = false;
+	public bool isTextFading = false;
 	private float fadeValue;
 	private float lookValue;
 	private float textMoveValue;
+	private float textFadeValue;
 	private int motionFactor = 0;
 
 	private string keyPlaying = "";
 
 	// Use this for initialization
 	void Start () {
+		// inaktiv
 		faceID = -1;
 
+		// ausblenden
 		this.renderer.material.SetFloat("_Blend2", 1.0f);
 
 		// initialisiere AudioSources
@@ -80,6 +85,21 @@ public class Charakter : MonoBehaviour {
 				isFading = false;
 			}
 		}
+		// Text-Ein-/Ausblend-Animation
+		if(isTextFading) {
+			float incr = textFadeValue * Time.deltaTime;
+			float blend = 1.0f - pl_text.renderer.material.GetFloat("_Blend2");
+			if(blend + incr > 1.0f) 
+				blend = 1.0f;
+			else if(blend + incr < 0.0f)
+				blend = 0.0f;
+			else 
+				blend += incr;
+			pl_text.renderer.material.SetFloat("_Blend2", 1.0f - blend);
+			if(blend == 1.0f || blend == 0.0f) {
+				isTextFading = false;
+			}
+		}
 		// Rede-Animation
 		if(isLooking) {
 			float incr = lookValue * Time.deltaTime;
@@ -104,32 +124,33 @@ public class Charakter : MonoBehaviour {
 				x = 0.0f;
 				pl_text.transform.position.Set(x, pl_text.transform.position.y, pl_text.transform.position.z);
 			}
-			else if(blend < -3.5f) {
-				x = -3.5f;
+			else if(blend < maxTextX) {
+				x = maxTextX;
 				pl_text.transform.position.Set(x, pl_text.transform.position.y, pl_text.transform.position.z);
 			}
 			else 
 				pl_text.transform.Translate(-incr, 0, 0, Space.World);
-			if(blend == -3.5f || blend == 0.0f) {
+			if(blend == maxTextX || blend == 0.0f) {
 				isTextMoving = false;
 			}
 		}
-
-		if(motionFactor != 0) {
+		// Bewegung anhand der User
+		if(faceID != -1) {
 			float diffrange = (range.y - range.x) / 10;
-			this.transform.Translate(0.0f, 0.1f * diffrange * -motionFactor * Time.deltaTime, 0.0f, Space.World);
+			this.transform.Translate(0.0f, 0.005f * diffrange * -motionFactor * Time.deltaTime, 0.0f, Space.World);
 		}
-
+		// Fertig mit reden?
 		if(!keyPlaying.Equals("")) {
 			if(!speech[keyPlaying].isPlaying) {
-				Debug.Log("isplaying false");
 				GameObject.Find("init").GetComponent<worms>().isTalking = false;
+				GameObject.Find("init").GetComponent<worms>().setRandomWartezeit();
 				keyPlaying = "";
 				look(-1.2f);
 			}
 		}
 	}
 
+	// Spiele zufälligen Sound aus gegebener Kategorie ab
 	public void playSpeech(string key) {
 		int i = 1;
 		bool listEnd = false;
@@ -138,9 +159,7 @@ public class Charakter : MonoBehaviour {
 			string s = key + i.ToString();
 			i++;
 			Debug.Log("/"+s+"/");
-			Debug.Log("speech " + speech);
 			if(speech.ContainsKey(s)) {
-				Debug.Log("add");
 				list.Add(s);
 			} else
 				listEnd = true;
@@ -154,6 +173,16 @@ public class Charakter : MonoBehaviour {
 		keyPlaying = rkey;
 		GameObject.Find("init").GetComponent<worms>().isTalking = true;
 		look(1.2f);
+	}
+
+	// Spiele angegebenen Sound ab
+	public void playSpecialSpeech(string key) {
+		if(speech.ContainsKey(key)) {
+			speech[key].Play();
+			keyPlaying = key;
+			GameObject.Find("init").GetComponent<worms>().isTalking = true;
+			look(1.2f);
+		}
 	}
 
 	public void setFaceID(int id) {
@@ -174,6 +203,11 @@ public class Charakter : MonoBehaviour {
 		isFading = true;
 	}
 
+	public void fadeText(float f) {
+		textFadeValue = f;
+		isTextFading = true;
+	}
+
 	public void animateText(float f) {
 		textMoveValue = f;
 		isTextMoving = true;
@@ -183,6 +217,7 @@ public class Charakter : MonoBehaviour {
 		motionFactor = f;
 	}
 
+	// versetze Charakter in Ausgangszustand
 	public void resetCharakter() {
 		setFaceID(-1);
 		fade(-0.5f);
