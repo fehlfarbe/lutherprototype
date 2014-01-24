@@ -64,7 +64,8 @@ private:
     Point2f mMotionVector;
 
     //camshift
-    Mat mBackProjection;
+    Mat mHist;
+    //Mat mBackProjection;
     RotatedRect mTrackBox;
 };
 

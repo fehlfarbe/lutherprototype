@@ -14,6 +14,7 @@
 #include <opencv2/video/tracking.hpp>
 
 #include <face.h>
+#include <utils.h>
 #include <logger.h>
 
 #include "osc/OscOutboundPacketStream.h"

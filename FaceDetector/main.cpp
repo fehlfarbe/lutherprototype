@@ -6,7 +6,9 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/video/video.hpp>
 #include <opencv2/highgui/highgui.hpp>
+
 #include <facedetector.h>
+#include <utils.h>
 
 using namespace std;
 using namespace cv;
@@ -79,7 +81,8 @@ int main( int argc, const char* argv[] )
         //write images
         if(writeIM){
             ostringstream filename;
-            filename << writeDst << "/" << count << ".jpg";
+            time_t t = time(0);
+            filename << writeDst << "/" << t << "_" << count << ".jpg";
             imwrite(filename.str(), output);
         }
 

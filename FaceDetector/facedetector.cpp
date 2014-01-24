@@ -1,28 +1,5 @@
 #include "facedetector.h"
 
-string type2str(int type) {
-  string r;
-
-  uchar depth = type & CV_MAT_DEPTH_MASK;
-  uchar chans = 1 + (type >> CV_CN_SHIFT);
-
-  switch ( depth ) {
-    case CV_8U:  r = "8U"; break;
-    case CV_8S:  r = "8S"; break;
-    case CV_16U: r = "16U"; break;
-    case CV_16S: r = "16S"; break;
-    case CV_32S: r = "32S"; break;
-    case CV_32F: r = "32F"; break;
-    case CV_64F: r = "64F"; break;
-    default:     r = "User"; break;
-  }
-
-  r += "C";
-  r += (chans+'0');
-
-  return r;
-}
-
 Facedetector::Facedetector()
 {
 	//init
@@ -59,13 +36,7 @@ Facedetector::Facedetector()
     oscTransmitSocket->Send( p.Data(), p.Size() );
 
     //Setup Logger
-    time_t filename = time(0);
-    char date_buff[40];
-    struct tm* my_tm = localtime(&filename);
-    strftime(date_buff, sizeof(date_buff), "%Y-%m-%d", my_tm);
-    ostringstream stream;
-    stream << date_buff << ".csv";
-    mLog = new Logger(stream.str());
+    mLog = new Logger(Utils::getDateTimeString("%Y-%m-%d").append(".csv"));
 }
 
 
@@ -101,7 +72,8 @@ bool Facedetector::loadProfileCascade(char* cascade){
 
 Mat Facedetector::detect(Mat& frame){
 
-    Mat frame_gray, frame_resized;
+    //Mat frame_gray, frame_resized;
+    Mat frame_resized;
 
     /************************
      *
@@ -118,8 +90,8 @@ Mat Facedetector::detect(Mat& frame){
     Mat frame_roi = Mat(frame_resized, Rect(0, roiTop, frame_resized.cols, frame_resized.rows-roiTop-roiBottom));
 
     //convert to grayscale, equalize histogram
-    cvtColor( frame_roi, frame_gray, CV_BGR2GRAY );
-    equalizeHist( frame_gray, frame_gray );
+    //cvtColor( frame_roi, frame_gray, CV_BGR2GRAY );
+    //equalizeHist( frame_gray, frame_gray );
 
 
     /************************
@@ -165,7 +137,7 @@ Mat Facedetector::detect(Mat& frame){
      *
      ***********************/
     for(unsigned int i = 0; i<mFaces.size(); i++){
-        if( !mFaces[i].track(mPrev, frame_gray) ){
+        if( !mFaces[i].track(mPrev, frame_roi) ){
             cout << "delete element with id " << mFaces[i].id() << endl;
 
             //send escaped face ID with OSC
@@ -233,7 +205,7 @@ Mat Facedetector::detect(Mat& frame){
     if( bgSubtraction ){
         //look for faces in ROIs
         for(unsigned int i=0; i<mFgROIs.size(); i++){
-            Mat FgROI = Mat(frame_gray, mFgROIs[i]);
+            Mat FgROI = Mat(frame_roi, mFgROIs[i]);
             Size maxSize = Size(mFgROIs[i].width, mFgROIs[i].height);
 
             //detect frontfaces
@@ -257,11 +229,11 @@ Mat Facedetector::detect(Mat& frame){
         }
     } else {
         //find faces in whole frame
-        mFrontCascade.detectMultiScale(frame_gray, rects, 1.3, 3, 0|CV_HAAR_SCALE_IMAGE, Size(24, 24), Size(200, 200));
-        addFaces(rects, frame_gray, Face::FRONT);
+        mFrontCascade.detectMultiScale(frame_roi, rects, 1.3, 3, 0|CV_HAAR_SCALE_IMAGE, Size(24, 24), Size(200, 200));
+        addFaces(rects, frame_roi, Face::FRONT);
         rects.clear();
-        mProfileCascade.detectMultiScale(frame_gray, rects, 1.3, 3, 0|CV_HAAR_SCALE_IMAGE, Size(34, 20), Size(200, 200));
-        addFaces(rects, frame_gray, Face::PROFILE);
+        mProfileCascade.detectMultiScale(frame_roi, rects, 1.3, 3, 0|CV_HAAR_SCALE_IMAGE, Size(34, 20), Size(200, 200));
+        addFaces(rects, frame_roi, Face::PROFILE);
     }
 
 
@@ -301,10 +273,10 @@ Mat Facedetector::detect(Mat& frame){
 
 
     //show equalized grayscale image
-    if( debug ){
-        imshow("Grayscale", frame_gray);
-        waitKey(10);
-    }
+//    if( debug ){
+//        imshow("Grayscale", frame_gray);
+//        waitKey(10);
+//    }
 
 
     return frame_resized;

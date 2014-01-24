@@ -91,7 +91,7 @@ void Face::update(Rect r, Mat& frame, FaceType type){
      *
      ********************************/
     Mat histimg = Mat::zeros(200, 320, CV_8UC3);
-    Mat hsv, hue, hist;
+    Mat hsv, hue, backProjection;
     int hsize = 16;
     float hranges[] = {0,180};
     const float* phranges = hranges;
@@ -104,8 +104,8 @@ void Face::update(Rect r, Mat& frame, FaceType type){
 
     Mat roi(hue, r), maskroi(mask, r);
 
-    calcHist(&roi, 1, 0, maskroi, hist, 1, &hsize, &phranges);
-    normalize(hist, hist, 0, 255, CV_MINMAX);
+    calcHist(&roi, 1, 0, maskroi, mHist, 1, &hsize, &phranges);
+    normalize(mHist, mHist, 0, 255, CV_MINMAX);
 
     //draw hist
 //    histimg = Scalar::all(0);
@@ -123,9 +123,9 @@ void Face::update(Rect r, Mat& frame, FaceType type){
 //                   Scalar(buf.at<Vec3b>(i)), -1, 8 );
 //    }
 
-    calcBackProject(&hue, 1, 0, hist, mBackProjection, &phranges);
-    mBackProjection &= mask;
-    mTrackBox = CamShift(mBackProjection, r, TermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ));
+    calcBackProject(&hue, 1, 0, mHist, backProjection, &phranges);
+    backProjection &= mask;
+    mTrackBox = CamShift(backProjection, r, TermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ));
 
 //    imshow("hist", mBackProjection);
 //    waitKey(100);
@@ -177,7 +177,19 @@ bool Face::track(Mat& prev, Mat& curr){
      *
      *********************************/
     Rect window = mRect;
-    mTrackBox = CamShift(mBackProjection, window, TermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ));
+    //mTrackBox = CamShift(mBackProjection, window, TermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ));
+
+    Mat hsv, hue, backProjection;
+    float hranges[] = {0,180};
+    const float* phranges = hranges;
+
+    cvtColor(curr, hsv, COLOR_BGR2HSV);
+    int ch[] = {0, 0};
+    hue.create(hsv.size(), hsv.depth());
+    mixChannels(&hsv, 1, &hue, 1, ch, 1);
+    calcBackProject(&hue, 1, 0, mHist, backProjection, &phranges);
+    //mBackProjection &= mask;
+    mTrackBox = CamShift(backProjection, window, TermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ));
 
 
     /*********************************
@@ -227,14 +239,19 @@ bool Face::track(Mat& prev, Mat& curr){
 
         //test if movement of feature is too big
         Point2f vec = newPoints[i]-mTrackPoints[i];
-        double dist = sqrt(vec.x*vec.x+vec.y+vec.y);
-        if( dist > mRect.width || dist > mRect.height){
+        //double dist = sqrt(vec.x*vec.x+vec.y+vec.y);
+        //if( dist > mRect.width || dist > mRect.height){
+        if( !mTrackBox.boundingRect().contains(mTrackPoints[i]) ){
             status[i] = 0;
             newPoints[k++] = mTrackPoints[i];
         } else {
             motionVec += vec;
             newPoints[k++] = newPoints[i];
         }
+
+        //test if point in camshift circle
+        //if( mTrackBox.boundingRect().contains(mTrackPoints[i]) )
+        //    cout << "is drin" << endl;
 
     }
 
