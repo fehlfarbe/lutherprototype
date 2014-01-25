@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System;
 using System.IO.Ports;
@@ -153,7 +153,7 @@ public class thesen : MonoBehaviour {
 
 
 		if (((AudioSource)sounds [lastAudio]).isPlaying)
-			((AudioSource)sounds [lastAudio]).Stop ();
+			((AudioSource)sounds [lastAudio]).Stop();
 
 		//audio.clip = movTexture.audioClip;
 		//audio.Play();
@@ -224,7 +224,7 @@ public class thesen : MonoBehaviour {
 
 	private void reaktion() {
 
-		string path = "auswurf_port.txt";
+		string path = "worms_config.txt";
 		try {
 			string[] filecontent = File.ReadAllLines(path);
 			Debug.Log(filecontent[1]);

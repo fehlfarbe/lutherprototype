@@ -1,2 +1,10 @@
-# Wartezeit
-121
+# COM-Name
+COM1
+# Port
+9600
+# Wartezeit in sec
+31
+# Faktor * Bewegungsvektor
+0.005
+# timer oder sanduhr?
+sanduhr

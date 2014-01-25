@@ -5,7 +5,6 @@ using System.IO.Ports;
 using System.IO;
 
 
-
 public class worms : MonoBehaviour {
 
 	public GameObject[] charaktere;
@@ -40,18 +39,20 @@ public class worms : MonoBehaviour {
 	private float randWaitSec;
 	System.Random rand;
 
+	public string configpath = "worms_config.txt";
+
 
 	// Use this for initialization
 	void Start() {
-		// Wartezeit aus config auslesen
-		string path = "worms_config.txt";
+		// Wartezeit und Uhr aus config auslesen
 		try {
-			string[] filecontent = File.ReadAllLines(path);
-			Debug.Log(Convert.ToInt32(filecontent[1]) + " sec");
-			wartezeit = Convert.ToInt32(filecontent[1]);
+			string[] filecontent = File.ReadAllLines(configpath);
+			Debug.Log(Convert.ToInt32(filecontent[5]) + " sec");
+			wartezeit = Convert.ToInt32(filecontent[5]);
+			setUhr(filecontent[9]);
 		}
 		catch (Exception e) {
-			Debug.Log("no access file "+path+e);
+			Debug.Log("no access file "+configpath+e);
 		}
 
 		//pl_begin = GameObject.Find("pl_begin");
@@ -73,7 +74,8 @@ public class worms : MonoBehaviour {
 
 		rand = new System.Random();
 
-
+		logStatus("starte Spiel");
+		logStatus("idle");
 	}
 
 	// Update is called once per frame
@@ -82,7 +84,16 @@ public class worms : MonoBehaviour {
 		// Tastenabfrage
 		if (Input.GetKeyUp(KeyCode.Escape)) {
 			// Spiel beenden
+			logStatus("beende Spiel\r\n");
 			Application.Quit();
+		}
+		else if(Input.GetKeyUp(KeyCode.F5)){
+			// Sanduhr
+			setUhr("sanduhr");
+		}
+		else if(Input.GetKeyUp(KeyCode.F6)){
+			// Timer
+			setUhr("timer");
 		}
 		else if(Input.GetKeyUp(KeyCode.B)){
 			setBegin();
@@ -112,15 +123,41 @@ public class worms : MonoBehaviour {
 		}
 	}
 
+	// schreibe Log mit Systemzeit in Datei
+	private void logStatus(string s) {
+		string path = "log.txt";
+		string content = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\t" + s + "\r\n";
+		File.AppendAllText(path, content);
+	}
+
+	// entweder Timer oder Sanduhr einblenden
+	private void setUhr(string typ) {
+		if(typ.Equals("timer")) {
+			GameObject.Find("timer_sanduhr").renderer.enabled = false;
+			timerSprites[0].renderer.enabled = true;
+			timerSprites[1].renderer.enabled = true;
+			timerSprites[2].renderer.enabled = true;
+			timerSprites[3].renderer.enabled = true;
+		}
+		else {
+			GameObject.Find("timer_sanduhr").renderer.enabled = true;
+			timerSprites[0].renderer.enabled = false;
+			timerSprites[1].renderer.enabled = false;
+			timerSprites[2].renderer.enabled = false;
+			timerSprites[3].renderer.enabled = false;
+		}
+	}
+
 	private void setIdle() {
 		status = Status.Idle;
+		logStatus("idle");
 		foreach(GameObject charakter in charaktere) {
 			charakter.GetComponent<Charakter>().resetCharakter();
 			charakter.GetComponent<Charakter>().fadeText(-0.5f);
 		}
 		isTalking = false;
 		isFinalTextVorbei = false;
-		hideWarteTexte();
+		hideWarteTexte(true);
 		anzPersonen = 0;
 
 		zuschauer[0].GetComponent<TextElement>().fade(-0.5f);
@@ -144,6 +181,7 @@ public class worms : MonoBehaviour {
 
 	private void setIntro() {
 		status = Status.Intro;
+		logStatus("intro");
 		StartCoroutine(playIntro());
 	}
 
@@ -179,6 +217,7 @@ public class worms : MonoBehaviour {
 
 	private void setWarten() {
 		status = Status.Warten;
+		logStatus("warten");
 		letzterZeitstempel = Time.time;
 		letzterSprachZeitstempel = Time.time;
 
@@ -187,17 +226,21 @@ public class worms : MonoBehaviour {
 		timerSprites[1].GetComponent<TextElement>().fade(1.5f);
 		timerSprites[2].GetComponent<TextElement>().fade(1.5f);
 		timerSprites[3].GetComponent<TextElement>().fade(1.5f);
+		GameObject.Find("timer_sanduhr").GetComponent<Sanduhr>().move(2.0f);
 	}
 
 	// Warten-Routine
 	private void warten() {
 
-		int t0 = (int)(wartezeit - Time.time + (float)letzterZeitstempel) % 10;
-		int t1 = (int)((wartezeit - Time.time + (float)letzterZeitstempel) / 10) % 6;
-		int t2 = (int)((wartezeit - Time.time + (float)letzterZeitstempel) / 60) % 10;
+		int t0 = (int)(wartezeit - Time.time + letzterZeitstempel) % 10;
+		int t1 = (int)((wartezeit - Time.time + letzterZeitstempel) / 10) % 6;
+		int t2 = (int)((wartezeit - Time.time + letzterZeitstempel) / 60) % 10;
 		timerSprites[0].GetComponent<Sprites>().setIndex(t0);
 		timerSprites[1].GetComponent<Sprites>().setIndex(t1);
 		timerSprites[2].GetComponent<Sprites>().setIndex(t2);
+
+		int ts = (int)((1 - (wartezeit - Time.time + letzterZeitstempel) / wartezeit) * 10);
+		GameObject.Find("timer_sanduhr").GetComponent<Sprites>().setIndex(ts);
 
 		// wenn 4 sec kein Gesicht mehr erkannt wurde -> brich Spiel ab
 		checkZeitLetzteOscMessage(4.0f);
@@ -220,14 +263,17 @@ public class worms : MonoBehaviour {
 
 	}
 
-	private void hideWarteTexte() {
+	private void hideWarteTexte(bool inklc) {
 		timerSprites[0].GetComponent<TextElement>().fade(-1.5f);
 		timerSprites[1].GetComponent<TextElement>().fade(-1.5f);
 		timerSprites[2].GetComponent<TextElement>().fade(-1.5f);
 		timerSprites[3].GetComponent<TextElement>().fade(-1.5f);
+		GameObject.Find("timer_sanduhr").GetComponent<Sanduhr>().move(-2.0f);
 
-		foreach(GameObject c in charaktere) {
-			c.GetComponent<Charakter>().fadeText(-0.5f);
+		if(inklc) {
+			foreach(GameObject c in charaktere) {
+				c.GetComponent<Charakter>().fadeText(-0.5f);
+			}
 		}
 		GameObject.Find("pl_text_anwesend").GetComponent<TextElement>().fade(-0.5f);
 		GameObject.Find("pl_text_abwesend").GetComponent<TextElement>().fade(-0.5f);
@@ -241,9 +287,8 @@ public class worms : MonoBehaviour {
 
 	// trigger Auswurfmechanismus
 	private void triggerDrucker() {
-		string path = "auswurf_port.txt";
 		try {
-			string[] filecontent = File.ReadAllLines(path);
+			string[] filecontent = File.ReadAllLines(configpath);
 			Debug.Log(filecontent[1]);
 			Debug.Log(Convert.ToInt32(filecontent[3]));
 			
@@ -266,15 +311,21 @@ public class worms : MonoBehaviour {
 			#endregion
 		}
 		catch (Exception e) {
-			Debug.Log("no access file "+path+e);
+			Debug.Log("no access file "+configpath+e);
+		}
+	}
+
+	IEnumerator auswurfQueue(int anz) {
+		for(int i=0; i<anz; i++) {
+			triggerDrucker();
+			yield return new WaitForSeconds(1.0f);
 		}
 	}
 
 	private void setBegin() {
 		status = Status.Beginn;
-		triggerDrucker();
-		hideWarteTexte();
-
+		logStatus("begin");
+		hideWarteTexte(false);
 	}
 
 	// Verhandlungsanimation
@@ -291,6 +342,10 @@ public class worms : MonoBehaviour {
 		charaktere[2].GetComponent<Charakter>().look(1.2f);
 		yield return new WaitForSeconds(5.5f);
 		charaktere[2].GetComponent<Charakter>().look(-1.2f);
+		yield return new WaitForSeconds(1.5f);
+		hideWarteTexte(true);
+		GameObject.Find("pl_Poster").GetComponent<TextElement>().fade (0.5f);
+		auswurfQueue(anzPersonen);
 		isFinalTextVorbei = true;
 		oscZeitstempel = Time.time;
 	}
@@ -302,10 +357,6 @@ public class worms : MonoBehaviour {
 			StartCoroutine(animateVerhandlung());
 		}
 
-		if(isFinalTextVorbei && !this.gameObject.GetComponents<AudioSource>()[0].isPlaying) {
-			GameObject.Find("pl_Poster").GetComponent<TextElement>().fade (0.5f);
-		}
-
 		if(isFinalTextVorbei) {
 			checkZeitLetzteOscMessage(4.0f);
 		}
@@ -313,8 +364,10 @@ public class worms : MonoBehaviour {
 
 	private void setAbbruch() {
 		status = Status.Abbruch;
-		hideWarteTexte();
+		logStatus("abbruch");
+		hideWarteTexte(true);
 		GameObject.Find("pl_Poster_timeout").GetComponent<TextElement>().fade(0.5f);
+		auswurfQueue(anzPersonen);
 	}
 
 	private void abbruch() {

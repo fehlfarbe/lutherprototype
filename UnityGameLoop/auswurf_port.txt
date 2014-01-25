@@ -1,4 +1,0 @@
-# COM Name
-COM1
-# Port
-9600

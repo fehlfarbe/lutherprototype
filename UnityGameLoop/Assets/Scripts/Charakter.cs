@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System;
 
 public class Charakter : MonoBehaviour {
 
@@ -27,7 +29,10 @@ public class Charakter : MonoBehaviour {
 	private float lookValue;
 	private float textMoveValue;
 	private float textFadeValue;
+
 	private int motionFactor = 0;
+	private float transformFactor = 0.1f;
+	private bool isReseting = false;
 
 	private string keyPlaying = "";
 
@@ -35,6 +40,17 @@ public class Charakter : MonoBehaviour {
 	void Start () {
 		// inaktiv
 		faceID = -1;
+
+		// transformFactor aus config auslesen
+		string path = GameObject.Find("init").GetComponent<worms>().configpath;
+		try {
+			string[] filecontent = File.ReadAllLines(path);
+			//Debug.Log(Convert.ToSingle(filecontent[7]));
+			transformFactor = Convert.ToSingle(filecontent[7]);
+		}
+		catch (Exception e) {
+			Debug.Log("no access file "+path+e);
+		}
 
 		// ausblenden
 		this.renderer.material.SetFloat("_Blend2", 1.0f);
@@ -122,11 +138,11 @@ public class Charakter : MonoBehaviour {
 			float blend = x - incr;
 			if(blend > 0.0f) {
 				x = 0.0f;
-				pl_text.transform.position.Set(x, pl_text.transform.position.y, pl_text.transform.position.z);
+				pl_text.transform.position = new Vector3(x, pl_text.transform.position.y, pl_text.transform.position.z);
 			}
 			else if(blend < maxTextX) {
 				x = maxTextX;
-				pl_text.transform.position.Set(x, pl_text.transform.position.y, pl_text.transform.position.z);
+				pl_text.transform.position = new Vector3(x, pl_text.transform.position.y, pl_text.transform.position.z);
 			}
 			else 
 				pl_text.transform.Translate(-incr, 0, 0, Space.World);
@@ -135,9 +151,15 @@ public class Charakter : MonoBehaviour {
 			}
 		}
 		// Bewegung anhand der User
-		if(faceID != -1) {
+		if(faceID != -1 || isReseting) {
 			float diffrange = (range.y - range.x) / 10;
-			this.transform.Translate(0.0f, 0.005f * diffrange * -motionFactor * Time.deltaTime, 0.0f, Space.World);
+			this.transform.Translate(0.0f, transformFactor * diffrange * -motionFactor * Time.deltaTime, 0.0f, Space.World);
+			if(isReseting) {
+				if(motionFactor < 0 && this.transform.position.y > 0)
+					isReseting = false;
+				else if(motionFactor > 0 && this.transform.position.y < 0)
+					isReseting = false;
+			}
 		}
 		// Fertig mit reden?
 		if(!keyPlaying.Equals("")) {
@@ -222,6 +244,10 @@ public class Charakter : MonoBehaviour {
 		setFaceID(-1);
 		fade(-0.5f);
 		animateText(-2.0f);
-		setMotionFactor(0);
+		if(this.transform.position.y < -0.2f || this.transform.position.y > 0.2f) {
+			int mf = (int)((this.transform.position.y < 0) ? -2/transformFactor : 2/transformFactor);
+			setMotionFactor(mf);
+			isReseting = true;
+		}
 	}
 }

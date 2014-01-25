@@ -52,6 +52,7 @@
      <Compile Include="Assets\Scripts\OSC.NET\jsOSCPacket.cs" />
      <Compile Include="Assets\Scripts\OSC.NET\jsOSCReceiver.cs" />
      <Compile Include="Assets\Scripts\OSC.NET\jsOSCTransmitter.cs" />
+     <Compile Include="Assets\Scripts\Sanduhr.cs" />
      <Compile Include="Assets\Scripts\Sprites.cs" />
      <Compile Include="Assets\Scripts\TextElement.cs" />
      <Compile Include="Assets\Scripts\UnityOSCListenerThesen.cs" />
