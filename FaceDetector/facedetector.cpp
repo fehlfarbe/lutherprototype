@@ -165,7 +165,7 @@ Mat Facedetector::detect(Mat& frame){
 
     /************************
      *
-     * track and duplicate faces
+     * delete duplicate faces
      *
      ***********************/
     for(unsigned int i = 0; i<mFaces.size(); i++){
@@ -189,6 +189,14 @@ Mat Facedetector::detect(Mat& frame){
                     mLog->log(stream.str().c_str());
                     cout << "Face " << mFaces[j].id() << " was " << dur << "s detected" << endl;
 
+                    //send escaped face ID with OSC
+                    osc::OutboundPacketStream p( oscOutputBuffer, oscBufferSize );
+                    p << osc::BeginBundleImmediate
+                      << osc::BeginMessage( "/deleteface" )
+                      << mFaces[j].id() << osc::EndMessage
+                      << osc::EndBundle;
+                    oscTransmitSocket->Send( p.Data(), p.Size() );
+
                     mFaces.erase(mFaces.begin() + j);
                     j--;
                 }
@@ -206,7 +214,7 @@ Mat Facedetector::detect(Mat& frame){
         //look for faces in ROIs
         for(unsigned int i=0; i<mFgROIs.size(); i++){
             Mat FgROI = Mat(frame_roi, mFgROIs[i]);
-            Size maxSize = Size(mFgROIs[i].width, mFgROIs[i].height);
+            Size maxSize = Size(min(mFgROIs[i].width, maxFaceDimension), min(mFgROIs[i].height, maxFaceDimension));
 
             //detect frontfaces
             mFrontCascade.detectMultiScale(FgROI, rects, 1.3, 3, 0|CV_HAAR_SCALE_IMAGE, Size(24, 24), maxSize);

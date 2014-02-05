@@ -90,7 +90,7 @@ void Face::update(Rect r, Mat& frame, FaceType type){
      * Camshift Histogram
      *
      ********************************/
-    Mat histimg = Mat::zeros(200, 320, CV_8UC3);
+    //Mat histimg = Mat::zeros(200, 320, CV_8UC3);
     Mat hsv, hue, backProjection;
     int hsize = 16;
     float hranges[] = {0,180};
@@ -102,7 +102,8 @@ void Face::update(Rect r, Mat& frame, FaceType type){
     hue.create(hsv.size(), hsv.depth());
     mixChannels(&hsv, 1, &hue, 1, ch, 1);
 
-    Mat roi(hue, r), maskroi(mask, r);
+    Rect frame_rect = Rect(0, 0, frame.cols, frame.rows);
+    Mat roi(hue, r & frame_rect), maskroi(mask, r & frame_rect);
 
     calcHist(&roi, 1, 0, maskroi, mHist, 1, &hsize, &phranges);
     normalize(mHist, mHist, 0, 255, CV_MINMAX);
@@ -177,7 +178,6 @@ bool Face::track(Mat& prev, Mat& curr){
      *
      *********************************/
     Rect window = mRect;
-    //mTrackBox = CamShift(mBackProjection, window, TermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ));
 
     Mat hsv, hue, backProjection;
     float hranges[] = {0,180};
@@ -189,7 +189,16 @@ bool Face::track(Mat& prev, Mat& curr){
     mixChannels(&hsv, 1, &hue, 1, ch, 1);
     calcBackProject(&hue, 1, 0, mHist, backProjection, &phranges);
     //mBackProjection &= mask;
+
+    Mat mask(curr.size(), CV_8UC1);
+    mask.setTo(Scalar::all(0));
+    rectangle(mask, mRect, Scalar(255,255,255), -1);
+    backProjection &= mask;
+
     mTrackBox = CamShift(backProjection, window, TermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ));
+
+//    imshow("Backproj" + mID, backProjection);
+//    waitKey(10);
 
 
     /*********************************
@@ -239,8 +248,6 @@ bool Face::track(Mat& prev, Mat& curr){
 
         //test if movement of feature is too big
         Point2f vec = newPoints[i]-mTrackPoints[i];
-        //double dist = sqrt(vec.x*vec.x+vec.y+vec.y);
-        //if( dist > mRect.width || dist > mRect.height){
         if( !mTrackBox.boundingRect().contains(mTrackPoints[i]) ){
             status[i] = 0;
             newPoints[k++] = mTrackPoints[i];
@@ -248,11 +255,6 @@ bool Face::track(Mat& prev, Mat& curr){
             motionVec += vec;
             newPoints[k++] = newPoints[i];
         }
-
-        //test if point in camshift circle
-        //if( mTrackBox.boundingRect().contains(mTrackPoints[i]) )
-        //    cout << "is drin" << endl;
-
     }
 
     //motion vector
@@ -277,20 +279,14 @@ bool Face::track(Mat& prev, Mat& curr){
     Rect r = boundingRect(mTrackPoints) & mTrackBox.boundingRect();
     //cout << r << " " << mRect << endl;
     if( r.width  > 10 && r.height > 10 )
-        mRect = r;
+       mRect = r;
     else
        mRect = boundingRect(mTrackPoints);
 
-    /*
-    if( mRect.width >= maxWidthHeight ){
-        mRect.x = mRect.x + mRect.width / 2 - maxWidthHeight / 2;
-        mRect.width = maxWidthHeight;
+    if( mRect.width > maxWidthHeight || mRect.height > maxWidthHeight){
+        Point2f mp = Point(mRect.x + mRect.width / 2, mRect.y + mRect.height / 2);
+        mRect = Rect(mp.x-maxWidthHeight/2, mp.y-maxWidthHeight/2, maxWidthHeight, maxWidthHeight);
     }
-    if( mRect.height >= maxWidthHeight ){
-        mRect.y = mRect.y + mRect.height / 2 - maxWidthHeight / 2;
-        mRect.height = maxWidthHeight;
-    }
-    */
 
     //update face
     updateFace(current);
@@ -355,6 +351,25 @@ void Face::draw(Mat& frame, FaceDistance dist, bool features){
      *
      ***************************/
     ellipse( frame, mTrackBox, mColor, 1, CV_AA );
+
+    //draw hist
+    Rect r = Rect(0, 0, frame.cols, frame.rows);
+    Rect histRect = Rect(mRect.x, mRect.y + mRect.height / 2, mRect.width / 2, mRect.height / 2);
+    Mat histimg = frame(histRect & r);
+    int hsize = 16;
+    int binW = histimg.cols / hsize;
+    Mat buf(1, hsize, CV_8UC3);
+    for( int i = 0; i < hsize; i++ )
+        buf.at<Vec3b>(i) = Vec3b(saturate_cast<uchar>(i*180./hsize), 255, 255);
+    cvtColor(buf, buf, CV_HSV2BGR);
+
+    for( int i = 0; i < hsize; i++ )
+    {
+        int val = saturate_cast<int>(mHist.at<float>(i)*histimg.rows/255);
+        rectangle( histimg, Point(i*binW,histimg.rows),
+                   Point((i+1)*binW,histimg.rows - val),
+                   Scalar(buf.at<Vec3b>(i)), -1, 8 );
+    }
 
 
     /***************************

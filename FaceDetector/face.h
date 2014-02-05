@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <sstream>
-#include <sys/time.h>
+#include <time.h>
 
 
 #include <opencv2/core/core.hpp>

@@ -19,6 +19,51 @@ bool bgSub = true;
 bool writeIM = true;
 const char* writeDst = "output/";
 
+//mouse
+Rect roi;
+bool drawRoi = false;
+Mat output;
+
+void drawROISelection(){
+    rectangle(output, roi, Scalar(150, 150, 255), 3);
+}
+
+// Implement mouse callback
+void selectROI( int event, int x, int y, int flags, void* param ){
+
+    cout << "Mousecallback "<< x << "," << y << endl;
+
+    switch( event ){
+        case CV_EVENT_MOUSEMOVE:
+            cout << "Mousemove" << endl;
+            if( drawRoi ){
+                roi.width = x-roi.x;
+                roi.height = y-roi.y;
+                drawROISelection();
+            }
+            break;
+
+        case CV_EVENT_LBUTTONDOWN:
+            cout << "LDOWN" << endl;
+            drawRoi = true;
+            roi = Rect( x, y, 0, 0 );
+            break;
+
+        case CV_EVENT_LBUTTONUP:
+            if( roi.width < 0 ){
+                roi.x += roi.width;
+                roi.width *= -1;
+            }
+            if( roi.height < 0 ){
+                roi.y += roi.height;
+                roi.height *= -1;
+            }
+            drawRoi = false;
+            break;
+    }
+}
+
+
 int main( int argc, const char* argv[] )
 {
 
@@ -39,7 +84,7 @@ int main( int argc, const char* argv[] )
     }
 
     int count = 0;
-    Mat frame, output;
+    Mat frame;
     time_t start, end;
     cap->read(frame);
 
@@ -56,6 +101,10 @@ int main( int argc, const char* argv[] )
         return -1;
     }
 
+    //Setup output window
+    namedWindow("Output");
+    setMouseCallback("Output", selectROI);
+
     //Start endless loop
     time(&start);
     while(!frame.empty()){
@@ -65,6 +114,12 @@ int main( int argc, const char* argv[] )
         output = detector.detect(frame);
         vector<Face> faces = detector.getFaces();
         //output = frame;
+        if( drawRoi ){
+            drawROISelection();
+        } else if(roi.area() > 0 ){
+            detector.roiBottom = output.rows - (roi.y + roi.height);
+            detector.roiTop = roi.y;
+        }
 
         //Ouput Window
         time(&end);
