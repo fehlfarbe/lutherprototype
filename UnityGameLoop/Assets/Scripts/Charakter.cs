@@ -9,7 +9,11 @@ public class Charakter : MonoBehaviour {
 	public AudioClip[] audioclips;
 	private Dictionary<string, AudioSource> speech;
 
+	public GameObject pl_arrow;
 	public GameObject pl_text;
+
+	private Vector3 pl_text_start_pos;
+	public float pl_arrow_Xoffset;
 
 	private int faceID;
 
@@ -33,6 +37,7 @@ public class Charakter : MonoBehaviour {
 	private int motionFactor = 0;
 	private float transformFactor = 0.1f;
 	private bool isReseting = false;
+	private float xpos;
 
 	private string keyPlaying = "";
 
@@ -65,10 +70,22 @@ public class Charakter : MonoBehaviour {
 			string key = ac.name.Substring(ac.name.LastIndexOf("_") + 1);
 			speech.Add(key, asource);
 		}
+
+		pl_text_start_pos = new Vector3(pl_text.transform.position.x, pl_text.transform.position.y, pl_text.transform.position.z);
 	}
 
 	// Update is called once per frame
 	void Update () {
+
+		// Tastenabfrage
+		if (Input.GetKeyUp(KeyCode.UpArrow)) {
+			transformFactor += 0.002f;
+			Debug.Log("Plus transform "+ transformFactor);
+		}
+		else if (Input.GetKeyUp(KeyCode.DownArrow)) {
+			transformFactor -= 0.002f;
+		}
+
 		/*if(isFading) {
 			Color color = this.renderer.material.color;
 			float incr = fadeValue * Time.deltaTime;
@@ -96,7 +113,7 @@ public class Charakter : MonoBehaviour {
 			else 
 				blend += incr;
 			this.renderer.material.SetFloat("_Blend2", 1.0f - blend);
-			pl_text.renderer.material.SetFloat("_Blend", blend);
+			//pl_text.renderer.material.SetFloat("_Blend", blend);
 			if(blend == 1.0f || blend == 0.0f) {
 				isFading = false;
 			}
@@ -134,6 +151,25 @@ public class Charakter : MonoBehaviour {
 		// Textanimation
 		if(isTextMoving) {
 			float incr = textMoveValue * Time.deltaTime;
+
+			pl_text.transform.position = Vector3.MoveTowards(pl_text.transform.position, pl_arrow.transform.position + new Vector3(pl_arrow_Xoffset,0,0), incr);
+
+//			float x = pl_text.transform.position.x;
+//			float blend = x - incr;
+//			if(blend > 0.0f) {
+//				x = 0.0f;
+//				pl_text.transform.position = new Vector3(x, pl_text.transform.position.y, pl_text.transform.position.z);
+//			}
+//			else if(blend < maxTextX) {
+//				x = maxTextX;
+//				pl_text.transform.position = new Vector3(x, pl_text.transform.position.y, pl_text.transform.position.z);
+//			}
+//			else 
+//				pl_text.transform.Translate(-incr, 0, 0, Space.World);			
+			if(pl_text.transform.position.x == pl_arrow.transform.position.x + pl_arrow_Xoffset) {
+				//isTextMoving = false;
+			}
+			/*float incr = textMoveValue * Time.deltaTime;
 			float x = pl_text.transform.position.x;
 			float blend = x - incr;
 			if(blend > 0.0f) {
@@ -148,7 +184,7 @@ public class Charakter : MonoBehaviour {
 				pl_text.transform.Translate(-incr, 0, 0, Space.World);
 			if(blend == maxTextX || blend == 0.0f) {
 				isTextMoving = false;
-			}
+			}*/
 		}
 		// Bewegung anhand der User
 		if(faceID != -1 || isReseting) {
@@ -160,6 +196,9 @@ public class Charakter : MonoBehaviour {
 				else if(motionFactor > 0 && this.transform.position.y < 0)
 					isReseting = false;
 			}
+
+			pl_arrow.transform.position = new Vector3(pl_arrow.transform.position.x, -xpos * 7.2f + 3.6f, pl_arrow.transform.position.z);
+			//Debug.Log(xpos);
 		}
 		// Fertig mit reden?
 		if(!keyPlaying.Equals("")) {
@@ -180,7 +219,7 @@ public class Charakter : MonoBehaviour {
 		while (!listEnd) {
 			string s = key + i.ToString();
 			i++;
-			Debug.Log("/"+s+"/");
+			//Debug.Log("/"+s+"/");
 			if(speech.ContainsKey(s)) {
 				list.Add(s);
 			} else
@@ -207,6 +246,18 @@ public class Charakter : MonoBehaviour {
 		}
 	}
 
+	private IEnumerator blinkText(int count, float speed) {
+		for (int i = 0; i < count; i++) {
+			pl_text.renderer.material.SetFloat("_Blend", 1.0f);
+			yield return new WaitForSeconds(speed);
+			pl_text.renderer.material.SetFloat("_Blend", 0.0f);
+			yield return new WaitForSeconds(speed);
+		}
+		pl_text.renderer.material.SetFloat("_Blend", 1.0f);
+
+		animateText(3.0f);
+	}
+
 	public void setFaceID(int id) {
 		faceID = id;
 	}
@@ -230,6 +281,18 @@ public class Charakter : MonoBehaviour {
 		isTextFading = true;
 	}
 
+	public void startBlink(int count, float speed) {
+		StartCoroutine(blinkText(count, speed));
+		isTextFading = false;
+		isTextMoving = false;
+		pl_text.transform.position = pl_text_start_pos;
+		pl_text.renderer.material.SetFloat("_Blend2", 0.0f);
+	}
+
+	public void fadeArrow(float f) {
+		pl_arrow.GetComponent<TextElement>().fade(f);
+	}
+
 	public void animateText(float f) {
 		textMoveValue = f;
 		isTextMoving = true;
@@ -239,11 +302,19 @@ public class Charakter : MonoBehaviour {
 		motionFactor = f;
 	}
 
+	public void setXPos(float f) {
+		xpos = f;
+		//Vector3 newpos = new Vector3(pl_arrow.transform.position.x, -xpos * 7.2f + 3.1f, pl_arrow.transform.position.z);
+		//pl_arrow.transform.position = Vector3.Lerp(pl_arrow.transform.position, newpos, Time.deltaTime);
+	}
+
 	// versetze Charakter in Ausgangszustand
 	public void resetCharakter() {
 		setFaceID(-1);
 		fade(-0.5f);
-		animateText(-2.0f);
+		fadeText(-0.5f);
+		fadeArrow(-0.5f);
+		//animateText(-2.0f);
 		if(this.transform.position.y < -0.2f || this.transform.position.y > 0.2f) {
 			int mf = (int)((this.transform.position.y < 0) ? -2/transformFactor : 2/transformFactor);
 			setMotionFactor(mf);

@@ -30,7 +30,8 @@ public class worms : MonoBehaviour {
 	GameObject pl_begin;
 	GameObject pl_abbruch;
 
-	public int wartezeit = 120;
+	private int wartezeit = 120;
+	private string timeouttyp;
 
 	private float oscZeitstempel;
 	private float letzterZeitstempel;
@@ -44,16 +45,7 @@ public class worms : MonoBehaviour {
 
 	// Use this for initialization
 	void Start() {
-		// Wartezeit und Uhr aus config auslesen
-		try {
-			string[] filecontent = File.ReadAllLines(configpath);
-			Debug.Log(Convert.ToInt32(filecontent[5]) + " sec");
-			wartezeit = Convert.ToInt32(filecontent[5]);
-			setUhr(filecontent[9]);
-		}
-		catch (Exception e) {
-			Debug.Log("no access file "+configpath+e);
-		}
+		readConfig();
 
 		//pl_begin = GameObject.Find("pl_begin");
 		//setVisibility(pl_begin, false);
@@ -66,6 +58,8 @@ public class worms : MonoBehaviour {
 			setVisibility(charakter, false);
 		}
 
+		GameObject.Find("pl_Poster").GetComponent<TextElement>().fade(0.5f);
+
 		anzPersonen = 0;
 
 		status = Status.Idle;
@@ -74,8 +68,8 @@ public class worms : MonoBehaviour {
 
 		rand = new System.Random();
 
-		logStatus("starte Spiel");
-		logStatus("idle");
+		logStatus("starte");
+		logStatus("Idle");
 	}
 
 	// Update is called once per frame
@@ -84,7 +78,7 @@ public class worms : MonoBehaviour {
 		// Tastenabfrage
 		if (Input.GetKeyUp(KeyCode.Escape)) {
 			// Spiel beenden
-			logStatus("beende Spiel\r\n");
+			logStatus("beende\r\n");
 			Application.Quit();
 		}
 		else if(Input.GetKeyUp(KeyCode.F5)){
@@ -101,6 +95,10 @@ public class worms : MonoBehaviour {
 		else if(Input.GetKeyUp(KeyCode.A)){
 			// trigger Auswurf
 			triggerDrucker();
+		}
+		else if(Input.GetKeyUp(KeyCode.U)){
+			// trigger Auswurf
+			readConfig();
 		}
 
 		// GameLoop
@@ -123,10 +121,24 @@ public class worms : MonoBehaviour {
 		}
 	}
 
+	private void readConfig() {
+		// Wartezeit und Uhr aus config auslesen
+		try {
+			string[] filecontent = File.ReadAllLines(configpath);
+			Debug.Log(Convert.ToInt32(filecontent[5]) + " sec");
+			wartezeit = Convert.ToInt32(filecontent[5]);
+			setUhr(filecontent[9]);
+			timeouttyp = filecontent[11];
+		}
+		catch (Exception e) {
+			Debug.Log("no access file "+configpath+e);
+		}
+	}
+
 	// schreibe Log mit Systemzeit in Datei
 	private void logStatus(string s) {
 		string path = "log.txt";
-		string content = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\t" + s + "\r\n";
+		string content = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " " + s + "\r\n";
 		File.AppendAllText(path, content);
 	}
 
@@ -148,30 +160,44 @@ public class worms : MonoBehaviour {
 		}
 	}
 
+	// entweder Timeout oder Hoeneß einblenden
+	private void fadeTimeout(string typ, float f) {
+		if(typ.Equals("hoeness")) {
+			GameObject.Find("timeout_easteregg").GetComponent<TextElement>().fade(f);
+		}
+		else {
+			GameObject.Find("timeout").GetComponent<TextElement>().fade(f);
+		}
+	}
+
 	private void setIdle() {
 		status = Status.Idle;
-		logStatus("idle");
+		logStatus("Idle");
 		foreach(GameObject charakter in charaktere) {
 			charakter.GetComponent<Charakter>().resetCharakter();
-			charakter.GetComponent<Charakter>().fadeText(-0.5f);
+			//charakter.GetComponent<Charakter>().fadeText(-0.5f);
 		}
 		isTalking = false;
 		isFinalTextVorbei = false;
 		hideWarteTexte(true);
+		GameObject.Find("timer_sanduhr").GetComponent<Sanduhr>().stopSounds();
 		anzPersonen = 0;
 
 		zuschauer[0].GetComponent<TextElement>().fade(-0.5f);
 		zuschauer[1].GetComponent<TextElement>().fade(-0.5f);
 		zuschauer[2].GetComponent<TextElement>().fade(-0.5f);
 
-		GameObject.Find("pl_Poster").GetComponent<TextElement>().fade(-0.5f);
+		GameObject.Find("pl_Poster").GetComponent<TextElement>().fade(0.5f);
 		GameObject.Find("pl_Poster_timeout").GetComponent<TextElement>().fade(-0.5f);
+		GameObject.Find("pl_Poster_infos").GetComponent<TextElement>().fade(-0.5f);
+		fadeTimeout(timeouttyp, -0.5f);
 	}
 
 	private void idle() {
 
 	}
 
+	// prüfe, wie lange es her ist ist, seit der Facedetector das letzte Mal eine Message gesendet hat
 	private void checkZeitLetzteOscMessage(float sec) {
 		// wenn 4 sec kein Gesicht mehr erkannt wurde -> brich Spiel ab
 		if(Time.time - oscZeitstempel > sec) {
@@ -181,7 +207,7 @@ public class worms : MonoBehaviour {
 
 	private void setIntro() {
 		status = Status.Intro;
-		logStatus("intro");
+		logStatus("Intro");
 		StartCoroutine(playIntro());
 	}
 
@@ -190,34 +216,40 @@ public class worms : MonoBehaviour {
 	}
 
 	// Intro-Animation
-	IEnumerator playIntro() {
+	private IEnumerator playIntro() {
 		// Phase 1: Intro1 abspielen
 		charaktere[0].GetComponent<Charakter>().playSpecialSpeech("intro1");
-		Debug.Log("intro1");
+		//Debug.Log("intro1");
 		yield return new WaitForSeconds(3.5f);
 
-		// Phase 2: Namen einblenden (inkl. anwesend/abwesen)
-		foreach(GameObject c in charaktere) {
+		// Phase 2: Poster ausblenden
+		//Namen einblenden (inkl. anwesend/abwesen)
+		/*foreach(GameObject c in charaktere) {
 			c.GetComponent<Charakter>().fadeText(0.5f);
-		}
-		GameObject.Find("pl_text_anwesend").GetComponent<TextElement>().fade(0.5f);
-		GameObject.Find("pl_text_abwesend").GetComponent<TextElement>().fade(0.5f);
-		Debug.Log("intro2");
-		yield return new WaitForSeconds(1.5f);
+		}*/
+		//GameObject.Find("pl_text_anwesend").GetComponent<TextElement>().fade(0.5f);
+		//GameObject.Find("pl_text_abwesend").GetComponent<TextElement>().fade(0.5f);
+		GameObject.Find("pl_Poster").GetComponent<TextElement>().fade(-0.5f);
+		GameObject.Find("pl_Poster_infos").GetComponent<TextElement>().fade(0.5f);
+
+		//Debug.Log("intro2");
+		yield return new WaitForSeconds(0.5f);
 
 		// Phase 3: Intro2 abspielen
 		charaktere[0].GetComponent<Charakter>().playSpecialSpeech("intro2");
-		Debug.Log("intro3");
+		//Debug.Log("intro3");
 		yield return new WaitForSeconds(1.5f);
 
 		// Phase 4: Warten starten
-		setWarten();
-		Debug.Log("warten");
+		if(status == Status.Intro) {
+			setWarten();
+			//Debug.Log("warten");
+		}
 	}
 
 	private void setWarten() {
 		status = Status.Warten;
-		logStatus("warten");
+		logStatus("Warten");
 		letzterZeitstempel = Time.time;
 		letzterSprachZeitstempel = Time.time;
 
@@ -227,6 +259,16 @@ public class worms : MonoBehaviour {
 		timerSprites[2].GetComponent<TextElement>().fade(1.5f);
 		timerSprites[3].GetComponent<TextElement>().fade(1.5f);
 		GameObject.Find("timer_sanduhr").GetComponent<Sanduhr>().move(2.0f);
+		GameObject.Find("timer_sanduhr").GetComponent<Sanduhr>().playSand();
+		GameObject.Find("pl_mapbalken").GetComponent<TextElement>().fade(0.5f);
+
+		for(int i=0; i<charaktere.Length; i++) {
+			if(charaktere[i].GetComponent<Charakter>().getFaceID() != -1) {
+				charaktere[i].GetComponent<Charakter>().fadeArrow(0.5f);
+				charaktere[i].GetComponent<Charakter>().startBlink(4, 0.25f);
+				//charaktere[i].GetComponent<Charakter>().animateText(2.0f);
+			}
+		}
 	}
 
 	// Warten-Routine
@@ -242,6 +284,12 @@ public class worms : MonoBehaviour {
 		int ts = (int)((1 - (wartezeit - Time.time + letzterZeitstempel) / wartezeit) * 10);
 		GameObject.Find("timer_sanduhr").GetComponent<Sprites>().setIndex(ts);
 
+		if(Time.time - letzterZeitstempel > wartezeit/1.5f && 
+		   !GameObject.Find("timer_sanduhr").GetComponent<Sanduhr>().sotSound.isPlaying) {
+			GameObject.Find("timer_sanduhr").GetComponent<Sanduhr>().playSandOfTime(3f/wartezeit);
+			GameObject.Find("timer_sanduhr").GetComponent<Sanduhr>().rotateSandUhr(true);
+		}
+
 		// wenn 4 sec kein Gesicht mehr erkannt wurde -> brich Spiel ab
 		checkZeitLetzteOscMessage(4.0f);
 
@@ -251,16 +299,45 @@ public class worms : MonoBehaviour {
 
 		if((Time.time - letzterSprachZeitstempel) > randWaitSec) {
 			if(!isTalking) {
-				ArrayList list = new ArrayList();
-				for(int i=0; i<charaktere.Length; i++) {
-					if(charaktere[i].GetComponent<Charakter>().getFaceID() != -1)
-						list.Add(i);
+				if(Time.time - letzterZeitstempel < wartezeit/3f) {
+					// z1 -> im ersten Drittel der Wartezeit
+					sprecheNachAnzPersonen("z1");
+					Debug.Log("z1");
 				}
-				charaktere[(int)list[rand.Next(0, list.Count)]].GetComponent<Charakter>().playSpeech("idle");
+				else if(Time.time - letzterZeitstempel < wartezeit/1.5f) {
+					// z2 -> im zweiten Drittel der Wartezeit
+					sprecheNachAnzPersonen("z2");
+					Debug.Log("z2");
+				}
+				else if(Time.time - letzterZeitstempel < wartezeit - 5f){
+					// z3 -> im letzten Drittel der Wartezeit, aber nicht 5 sec vor Schluss
+					sprecheNachAnzPersonen("z3");
+					Debug.Log("z3");
+				}
 			}
 			setRandomWartezeit();
 		}
 
+	}
+
+	// zufälliger aktiver Charakter spricht abhängig von Anzahl der Personen unterschiedliche Texte
+	private void sprecheNachAnzPersonen(string z) {
+		ArrayList list = new ArrayList();
+		for(int i=0; i<charaktere.Length; i++) {
+			if(charaktere[i].GetComponent<Charakter>().getFaceID() != -1)
+				list.Add(i);
+		}
+
+		if(anzPersonen == 1) {
+			charaktere[(int)list[rand.Next(0, list.Count)]].GetComponent<Charakter>().playSpecialSpeech(z+"nr1");
+		}
+		else if(anzPersonen == 2) {
+			charaktere[(int)list[rand.Next(0, list.Count)]].GetComponent<Charakter>().playSpecialSpeech(z+"nr2");
+		}
+		else if(anzPersonen == 3) {
+			charaktere[(int)list[rand.Next(0, list.Count)]].GetComponent<Charakter>().playSpecialSpeech(z+"nr3");
+		}
+		//charaktere[(int)list[rand.Next(0, list.Count)]].GetComponent<Charakter>().playSpeech("idle");
 	}
 
 	private void hideWarteTexte(bool inklc) {
@@ -269,14 +346,18 @@ public class worms : MonoBehaviour {
 		timerSprites[2].GetComponent<TextElement>().fade(-1.5f);
 		timerSprites[3].GetComponent<TextElement>().fade(-1.5f);
 		GameObject.Find("timer_sanduhr").GetComponent<Sanduhr>().move(-2.0f);
+		GameObject.Find("timer_sanduhr").GetComponent<Sanduhr>().rotateSandUhr(false);
 
 		if(inklc) {
 			foreach(GameObject c in charaktere) {
 				c.GetComponent<Charakter>().fadeText(-0.5f);
+				c.GetComponent<Charakter>().fadeArrow(-0.5f);
 			}
+			GameObject.Find("pl_mapbalken").GetComponent<TextElement>().fade(-0.5f);
 		}
-		GameObject.Find("pl_text_anwesend").GetComponent<TextElement>().fade(-0.5f);
-		GameObject.Find("pl_text_abwesend").GetComponent<TextElement>().fade(-0.5f);
+		//GameObject.Find("pl_text_anwesend").GetComponent<TextElement>().fade(-0.5f);
+		//GameObject.Find("pl_text_abwesend").GetComponent<TextElement>().fade(-0.5f);
+
 	}
 	
 	// zufälliges Redeintervall
@@ -315,7 +396,8 @@ public class worms : MonoBehaviour {
 		}
 	}
 
-	IEnumerator auswurfQueue(int anz) {
+	// triggerDrucker aller einer Sekunde nach Anzahl der Personen 
+	private IEnumerator auswurfQueue(int anz) {
 		for(int i=0; i<anz; i++) {
 			triggerDrucker();
 			yield return new WaitForSeconds(1.0f);
@@ -324,12 +406,14 @@ public class worms : MonoBehaviour {
 
 	private void setBegin() {
 		status = Status.Beginn;
-		logStatus("begin");
+		logStatus("Erfolg");
 		hideWarteTexte(false);
+		GameObject.Find("timer_sanduhr").GetComponent<Sanduhr>().stopSounds();
 	}
 
 	// Verhandlungsanimation
-	IEnumerator animateVerhandlung() {
+	private IEnumerator animateVerhandlung() {
+		yield return new WaitForSeconds(2.0f);
 		charaktere[0].GetComponent<Charakter>().look(1.2f);
 		yield return new WaitForSeconds(3.0f);
 		charaktere[0].GetComponent<Charakter>().look(-1.2f);
@@ -345,7 +429,8 @@ public class worms : MonoBehaviour {
 		yield return new WaitForSeconds(1.5f);
 		hideWarteTexte(true);
 		GameObject.Find("pl_Poster").GetComponent<TextElement>().fade (0.5f);
-		auswurfQueue(anzPersonen);
+		GameObject.Find("pl_Poster_infos").GetComponent<TextElement>().fade(-0.5f);
+		StartCoroutine(auswurfQueue(anzPersonen));
 		isFinalTextVorbei = true;
 		oscZeitstempel = Time.time;
 	}
@@ -364,10 +449,15 @@ public class worms : MonoBehaviour {
 
 	private void setAbbruch() {
 		status = Status.Abbruch;
-		logStatus("abbruch");
+		logStatus("Timeout");
 		hideWarteTexte(true);
+		fadeTimeout(timeouttyp, 3.0f);
+		GameObject.Find("timer_sanduhr").GetComponent<Sanduhr>().stopSounds();
+		// play timeout sound
+		this.gameObject.GetComponents<AudioSource>()[1].Play();
 		GameObject.Find("pl_Poster_timeout").GetComponent<TextElement>().fade(0.5f);
-		auswurfQueue(anzPersonen);
+		GameObject.Find("pl_Poster_infos").GetComponent<TextElement>().fade(-0.5f);
+		StartCoroutine(auswurfQueue(anzPersonen));
 	}
 
 	private void abbruch() {
@@ -383,11 +473,15 @@ public class worms : MonoBehaviour {
 	}
 
 	// aktualisiere Bewegung des Charakters
-	public void handleFacelist(int id, int mfactor) {
+	public void handleFacelist(int id, int xpos, int mfactor) {
 		oscZeitstempel = Time.time;
+
+		float xrelpos = xpos / 640f;
+
 		foreach(GameObject charakter in charaktere) {
 			if(charakter.GetComponent<Charakter>().getFaceID() == id) {
 				charakter.GetComponent<Charakter>().setMotionFactor(mfactor);
+				charakter.GetComponent<Charakter>().setXPos(xrelpos);
 				break;
 			}
 		}
@@ -430,7 +524,7 @@ public class worms : MonoBehaviour {
 		}
 		else {
 			if(status == Status.Idle) {
-				aktiviereCharakter(0, id, true); // aktiviere Protokallant (quiet)
+				aktiviereCharakter(0, id, true); // aktiviere Protokollant (quiet)
 				setIntro();
 			}
 			else {
@@ -445,9 +539,12 @@ public class worms : MonoBehaviour {
 			charaktere[c].GetComponent<Charakter>().playSpeech("in");
 		}
 		charaktere[c].GetComponent<Charakter>().setFaceID(id);
-		charaktere[c].GetComponent<Charakter>().fade(0.5f);
-		charaktere[c].GetComponent<Charakter>().animateText(2.0f);
-
+		charaktere[c].GetComponent<Charakter>().fade(1.5f);
+		if (status == Status.Warten) {
+			charaktere[c].GetComponent<Charakter>().fadeArrow(0.5f);
+			charaktere[c].GetComponent<Charakter>().startBlink(4, 0.25f);
+			//charaktere[c].GetComponent<Charakter>().animateText(2.0f);
+		}
 		// Zuschauer einblenden
 		anzPersonen++;
 		if(anzPersonen > 1) {

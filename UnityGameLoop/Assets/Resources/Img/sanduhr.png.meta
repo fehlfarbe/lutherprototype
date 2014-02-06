@@ -48,12 +48,12 @@ TextureImporter:
     - name: sanduhr_0
       rect:
         serializedVersion: 2
-        x: 11
+        x: 10
         y: 643
         width: 300
         height: 316
-      alignment: 1
-      pivot: {x: 0, y: 1}
+      alignment: 0
+      pivot: {x: .5, y: .5}
     - name: sanduhr_1
       rect:
         serializedVersion: 2
@@ -61,8 +61,8 @@ TextureImporter:
         y: 643
         width: 300
         height: 316
-      alignment: 1
-      pivot: {x: 0, y: 1}
+      alignment: 0
+      pivot: {x: .5, y: .5}
     - name: sanduhr_2
       rect:
         serializedVersion: 2
@@ -70,8 +70,8 @@ TextureImporter:
         y: 643
         width: 300
         height: 316
-      alignment: 1
-      pivot: {x: 0, y: 1}
+      alignment: 0
+      pivot: {x: .5, y: .5}
     - name: sanduhr_3
       rect:
         serializedVersion: 2
@@ -79,8 +79,8 @@ TextureImporter:
         y: 643
         width: 300
         height: 316
-      alignment: 1
-      pivot: {x: 0, y: 1}
+      alignment: 0
+      pivot: {x: .5, y: .5}
     - name: sanduhr_4
       rect:
         serializedVersion: 2
@@ -88,8 +88,8 @@ TextureImporter:
         y: 323
         width: 300
         height: 316
-      alignment: 1
-      pivot: {x: 0, y: 1}
+      alignment: 0
+      pivot: {x: .5, y: .5}
     - name: sanduhr_5
       rect:
         serializedVersion: 2
@@ -97,8 +97,8 @@ TextureImporter:
         y: 323
         width: 300
         height: 316
-      alignment: 1
-      pivot: {x: 0, y: 1}
+      alignment: 0
+      pivot: {x: .5, y: .5}
     - name: sanduhr_6
       rect:
         serializedVersion: 2
@@ -106,8 +106,8 @@ TextureImporter:
         y: 323
         width: 300
         height: 316
-      alignment: 1
-      pivot: {x: 0, y: 1}
+      alignment: 0
+      pivot: {x: .5, y: .5}
     - name: sanduhr_7
       rect:
         serializedVersion: 2
@@ -115,8 +115,8 @@ TextureImporter:
         y: 323
         width: 300
         height: 316
-      alignment: 1
-      pivot: {x: 0, y: 1}
+      alignment: 0
+      pivot: {x: .5, y: .5}
     - name: sanduhr_8
       rect:
         serializedVersion: 2
@@ -124,8 +124,8 @@ TextureImporter:
         y: 3
         width: 300
         height: 316
-      alignment: 1
-      pivot: {x: 0, y: 1}
+      alignment: 0
+      pivot: {x: .5, y: .5}
     - name: sanduhr_9
       rect:
         serializedVersion: 2
@@ -133,8 +133,8 @@ TextureImporter:
         y: 3
         width: 300
         height: 316
-      alignment: 1
-      pivot: {x: 0, y: 1}
+      alignment: 0
+      pivot: {x: .5, y: .5}
     - name: sanduhr_10
       rect:
         serializedVersion: 2
@@ -142,7 +142,7 @@ TextureImporter:
         y: 3
         width: 300
         height: 316
-      alignment: 1
-      pivot: {x: 0, y: 1}
+      alignment: 0
+      pivot: {x: .5, y: .5}
   spritePackingTag: 
   userData: 

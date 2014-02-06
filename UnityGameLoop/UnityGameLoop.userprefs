@@ -3,10 +3,11 @@
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Charakter.cs">
     <Files>
       <File FileName="Assets\Scripts\worms.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\worms.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\UnityOSCListenerWorms.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\UnityOSCListenerThesen.cs" Line="1" Column="1" />
       <File FileName="Assets\blendTexture.shader" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Charakter.cs" Line="250" Column="22" />
+      <File FileName="Assets\Scripts\Charakter.cs" Line="222" Column="6" />
       <File FileName="Assets\Scripts\TextElement.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Sprites.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Sanduhr.cs" Line="1" Column="1" />
