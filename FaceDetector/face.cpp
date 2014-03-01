@@ -40,6 +40,13 @@ void Face::release(){
     destroyWindow(stream.str());
 }
 
+
+/**
+ * @brief Face::update
+ * @param r new face rectangle
+ * @param frame frame for feature and histogram detection
+ * @param type profile or frontal face
+ */
 void Face::update(Rect r, Mat& frame, FaceType type){
 
     if( mRect.area() == 0){
@@ -75,11 +82,12 @@ void Face::update(Rect r, Mat& frame, FaceType type){
     //equalize histogram
     equalizeHist(frame_gray, frame_gray);
 
+    //set detection mask
     Mat mask(frame_gray.size(), CV_8UC1);
     mask.setTo(Scalar::all(0));
     rectangle(mask, r, Scalar(255,255,255), -1);
 
-
+    //find features
     mTrackPoints.clear();
     goodFeaturesToTrack(frame_gray, mTrackPoints, 100, 0.01, 5, mask, 3, 0, 0.04);
     if( mTrackPoints.size() > 0)
@@ -87,7 +95,8 @@ void Face::update(Rect r, Mat& frame, FaceType type){
 
     /********************************
      *
-     * Camshift Histogram
+     * Camshift Histogram detection
+     * http://docs.opencv.org/trunk/doc/py_tutorials/py_video/py_meanshift/py_meanshift.html
      *
      ********************************/
     //Mat histimg = Mat::zeros(200, 320, CV_8UC3);
@@ -135,6 +144,12 @@ void Face::update(Rect r, Mat& frame, FaceType type){
     updateFace(frame);
 }
 
+/**
+ * test if faces are similar
+ * @brief Face::isSimilar
+ * @param r
+ * @return
+ */
 bool Face::isSimilar(Rect r){
 
 //    //TODO: is middlepoint in circle?
@@ -160,6 +175,12 @@ bool Face::isSimilar(Rect r){
     return false;
 }
 
+/**
+ * test if faces are similar
+ * @brief Face::isSimilar
+ * @param f
+ * @return
+ */
 bool Face::isSimilar(Face f){
 
     Rect r = f.rect() & mRect;
@@ -170,6 +191,13 @@ bool Face::isSimilar(Face f){
     return false;
 }
 
+/**
+ * track face by camshift and optical flow
+ * @brief Face::track
+ * @param prev previous frame
+ * @param curr current frame
+ * @return
+ */
 bool Face::track(Mat& prev, Mat& curr){
 
     /*********************************
@@ -267,6 +295,7 @@ bool Face::track(Mat& prev, Mat& curr){
     swap(mTrackPoints, newPoints);
     mStatus = status;
 
+    // not enough trackpoints found
     if( notfound > mTrackPoints.size()/2 )
         return false;
 
@@ -283,6 +312,7 @@ bool Face::track(Mat& prev, Mat& curr){
     else
        mRect = boundingRect(mTrackPoints);
 
+    //maximum size of face
     if( mRect.width > maxWidthHeight || mRect.height > maxWidthHeight){
         Point2f mp = Point(mRect.x + mRect.width / 2, mRect.y + mRect.height / 2);
         mRect = Rect(mp.x-maxWidthHeight/2, mp.y-maxWidthHeight/2, maxWidthHeight, maxWidthHeight);
@@ -305,6 +335,13 @@ Rect Face::rect(){
     return mRect;
 }
 
+/**
+ * draw face with statistics to frame
+ * @brief Face::draw
+ * @param frame frame for drawing
+ * @param dist facedistance (not needed for luther relief)
+ * @param features draw features
+ */
 void Face::draw(Mat& frame, FaceDistance dist, bool features){
 
     /******************************
@@ -397,6 +434,10 @@ void Face::draw(Mat& frame, FaceDistance dist, bool features){
     }
 }
 
+/**
+ * @brief Face::updateFace
+ * @param fram
+ */
 void Face::updateFace(Mat& frame){
     Rect r = mRect;
 
@@ -422,6 +463,12 @@ int Face::id(){
     return mID;
 }
 
+/**
+ * @brief Face::duration
+ * @param start start time
+ * @param end end time
+ * @return time in seconds
+ */
 int Face::duration(time_t *start, time_t *end){
     time(end);
     (*start) = mStartTime;
@@ -429,6 +476,10 @@ int Face::duration(time_t *start, time_t *end){
     return ( (*end) - mStartTime );
 }
 
+/**
+ * @brief Face::motionVec
+ * @return
+ */
 Point Face::motionVec(){
     return mMotionVector;
 }

@@ -24,11 +24,13 @@ Rect roi;
 bool drawRoi = false;
 Mat output;
 
+
+// draw ROI
 void drawROISelection(){
     rectangle(output, roi, Scalar(150, 150, 255), 3);
 }
 
-// Implement mouse callback
+// Implement mouse callback to set up ROI
 void selectROI( int event, int x, int y, int flags, void* param ){
 
     cout << "Mousecallback "<< x << "," << y << endl;
@@ -90,8 +92,11 @@ int main( int argc, const char* argv[] )
 
     // Setup detector
     Facedetector detector = Facedetector();
+    // activate / deactivate background substraction
     detector.bgSubtraction = bgSub;
 
+
+    // load cascade files for frontal and profile face detection
     if(!detector.loadFrontCascade("../lbpcascade_frontalface.xml")){
         cout << "Can't load cascade file";
         return -1;
@@ -125,7 +130,7 @@ int main( int argc, const char* argv[] )
         time(&end);
         double fps = double(count) / difftime(end, start);
         ostringstream stream;
-        stream << faces.size() << " Faces detected (" << fps << " fps)";
+        stream << facesh.size() << " Faces detected (" << fps << " fps)";
         putText(output, stream.str(), Point(5, output.rows-10), 1, 1, Scalar(255, 255, 255));
         imshow("Output", output);
         if( (waitKey(10) & 255) == 'c' ){
@@ -148,6 +153,7 @@ int main( int argc, const char* argv[] )
         cap->read(frame);
     }
 
+    //cleanup
     cap->release();
     delete cap;
     cout << "End.." << endl;

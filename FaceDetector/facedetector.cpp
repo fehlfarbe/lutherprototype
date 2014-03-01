@@ -3,16 +3,16 @@
 Facedetector::Facedetector()
 {
 	//init
-	debug = true;
-    bgSubtraction = true;
-    detectionSize = Size(640, 480);
-    maxFaceDimension = 250;
+    debug = true; //debug mode? (more info windows)
+    bgSubtraction = true; //background substraction
+    detectionSize = Size(640, 480); // resize input image
+    maxFaceDimension = 250; // maximum size (width, heigth) of face
 
     //ROI
-    roiTop = 30;
-    roiBottom = 30;
+    roiTop = 30; // top ROI distance
+    roiBottom = 30; // bottom ROI distance
 
-    //distance
+    //distance (not needed for luther relief)
     middleArea = 50;
     nearArea = 86;
 
@@ -28,6 +28,7 @@ Facedetector::Facedetector()
     oscOutputBuffer = new char[oscBufferSize];
     oscTransmitSocket = new UdpTransmitSocket( IpEndpointName( oscAddr, oscPort ) );
 
+    // send start command
     osc::OutboundPacketStream p( oscOutputBuffer, oscBufferSize );
     p << osc::BeginBundleImmediate
       << osc::BeginMessage( "/start" )
@@ -69,7 +70,11 @@ bool Facedetector::loadProfileCascade(char* cascade){
     return mProfileCascade.load(cascade);
 }
 
-
+/**
+ * @brief Facedetector::detect
+ * @param frame frame for detection
+ * @return
+ */
 Mat Facedetector::detect(Mat& frame){
 
     //Mat frame_gray, frame_resized;
@@ -87,6 +92,7 @@ Mat Facedetector::detect(Mat& frame){
         frame.copyTo(frame_resized);
     }
 
+    //set detection ROI
     Mat frame_roi = Mat(frame_resized, Rect(0, roiTop, frame_resized.cols, frame_resized.rows-roiTop-roiBottom));
 
     //convert to grayscale, equalize histogram
@@ -121,6 +127,7 @@ Mat Facedetector::detect(Mat& frame){
             }
         }
 
+        // if debug mode show background model
         if( debug ){
             Mat temp;
             mBGSub.getBackgroundImage(temp);
@@ -166,6 +173,7 @@ Mat Facedetector::detect(Mat& frame){
     /************************
      *
      * delete duplicate faces
+     * find similar faces and merge them
      *
      ***********************/
     for(unsigned int i = 0; i<mFaces.size(); i++){
@@ -189,7 +197,7 @@ Mat Facedetector::detect(Mat& frame){
                     mLog->log(stream.str().c_str());
                     cout << "Face " << mFaces[j].id() << " was " << dur << "s detected" << endl;
 
-                    //send escaped face ID with OSC
+                    //send disappeared face ID with OSC
                     osc::OutboundPacketStream p( oscOutputBuffer, oscBufferSize );
                     p << osc::BeginBundleImmediate
                       << osc::BeginMessage( "/deleteface" )
@@ -290,13 +298,18 @@ Mat Facedetector::detect(Mat& frame){
     return frame_resized;
 }
 
+/**
+ * @brief Facedetector::getFaces
+ * @return
+ */
 vector<Face> Facedetector::getFaces(){
-
     return mFaces;
-
 }
 
-
+/**
+ * @brief Facedetector::drawFaces
+ * @param frame
+ */
 void Facedetector::drawFaces(Mat& frame){
 
     //set ROI
@@ -310,6 +323,11 @@ void Facedetector::drawFaces(Mat& frame){
 
 }
 
+/**
+ * @brief Facedetector::distance
+ * @param r
+ * @return
+ */
 Face::FaceDistance Facedetector::distance(Rect r){
     if( r.width < middleArea)
         return Face::FAR;
@@ -319,6 +337,13 @@ Face::FaceDistance Facedetector::distance(Rect r){
         return Face::NEAR;
 }
 
+
+/**
+ * @brief Facedetector::addFaces
+ * @param rects New face rectangles
+ * @param frame frame
+ * @param type facetype (frontal, profile)
+ */
 void Facedetector::addFaces(vector<Rect> rects, Mat& frame, Face::FaceType type){
 
     for(unsigned int i=0; i<rects.size(); i++){
@@ -328,6 +353,7 @@ void Facedetector::addFaces(vector<Rect> rects, Mat& frame, Face::FaceType type)
             continue;
 
         bool add = true;
+        //update existing faces
         for(unsigned j=0; j<mFaces.size(); j++){
             if( mFaces[j].isSimilar(rects[i])){
                 mFaces[j].update(rects[i], frame, type);
@@ -337,6 +363,7 @@ void Facedetector::addFaces(vector<Rect> rects, Mat& frame, Face::FaceType type)
         }
 
         if( add ){
+            //add new faces to Facelist
             Face f = Face(rects[i], frame, type);
             mFaces.push_back(f);
 
