@@ -22,8 +22,8 @@ public class UnityOSCListenerWorms : MonoBehaviour  {
 			GameObject.Find("init").GetComponent<worms>().triggerPersonOut((int)args[0]);
 			break;
 		case "/facelist":
-			GameObject.Find("init").GetComponent<worms>().handleFacelist((int)args[0], (int)args[3]);
-			Debug.Log("facelist "+args[0]+" "+args[3]);
+			GameObject.Find("init").GetComponent<worms>().handleFacelist((int)args[0], (int)args[1], (int)args[3]);
+			//Debug.Log("facelist "+args[0]+" "+args[1]+" "+args[3]);
 			break;
 		case "/end":
 			Debug.Log("Erkennung beendet");
