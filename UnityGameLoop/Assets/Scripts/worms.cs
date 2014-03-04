@@ -6,17 +6,17 @@ using System.IO;
 
 
 public class worms : MonoBehaviour {
-
-	public GameObject[] charaktere;
-	//public Dictionary<GameObject,int> charaktereMap;
-	public GameObject[] timerSprites;
-	public GameObject[] zuschauer;
+	
+	public GameObject[] charaktere;		// die 4 Charaktere Verknuepfung mit den GameObjects
+	public GameObject[] timerSprites;	// Zahlen-Sprites fuer Timer
+	public GameObject[] zuschauer;		// verschiedene Zustaende des Publikums
 
 	private int anzPersonen;
 
 	public bool isTalking;
 	private bool isFinalTextVorbei = false;
 
+	// einzelne Zustaende des Gameloops
 	public enum Status {
 		Idle,
 		Warten,
@@ -24,20 +24,16 @@ public class worms : MonoBehaviour {
 		Abbruch,
 		Intro
 	}
+	public Status status;	// aktueller Status
 
-	public Status status;
+	private int wartezeit = 120;	// Dauer des Timers (aus config)
+	private string timeouttyp;		// Easteregg oder Normal (aus config)
 
-	GameObject pl_begin;
-	GameObject pl_abbruch;
+	private float oscZeitstempel;			// letzter Zeitpunkt, an dem oscHandler getriggert wurde
+	private float letzterZeitstempel;		// Zeitpunkt, wenn Timer anfaengt zu zaehlen
+	public float letzterSprachZeitstempel;	// Zeitpunkt, an dem zuletzt Sprachsample gespielt wurde
 
-	private int wartezeit = 120;
-	private string timeouttyp;
-
-	private float oscZeitstempel;
-	private float letzterZeitstempel;
-	public float letzterSprachZeitstempel;
-
-	private float randWaitSec;
+	private float randWaitSec;				// zufalliger Wartebereich zwischen Sprachsamples
 	System.Random rand;
 
 	public string configpath = "worms_config.txt";
@@ -46,12 +42,6 @@ public class worms : MonoBehaviour {
 	// Use this for initialization
 	void Start() {
 		readConfig();
-
-		//pl_begin = GameObject.Find("pl_begin");
-		//setVisibility(pl_begin, false);
-		//pl_abbruch = GameObject.Find("pl_abbruch");
-		//setVisibility(pl_abbruch, false);
-		//setVisibility(GameObject.Find("pl_Poster"), false);
 
 		// blende alle Charaktere aus
 		foreach (GameObject charakter in charaktere) {
@@ -121,6 +111,7 @@ public class worms : MonoBehaviour {
 		}
 	}
 
+	// config auslesen
 	private void readConfig() {
 		// Wartezeit und Uhr aus config auslesen
 		try {
@@ -170,6 +161,7 @@ public class worms : MonoBehaviour {
 		}
 	}
 
+	// initialisieren Idle-Status
 	private void setIdle() {
 		status = Status.Idle;
 		logStatus("Idle");
@@ -193,6 +185,7 @@ public class worms : MonoBehaviour {
 		fadeTimeout(timeouttyp, -0.5f);
 	}
 
+	// Idle-Routine
 	private void idle() {
 
 	}
@@ -205,12 +198,14 @@ public class worms : MonoBehaviour {
 		}
 	}
 
+	// initialisieren Intro-Status
 	private void setIntro() {
 		status = Status.Intro;
 		logStatus("Intro");
 		StartCoroutine(playIntro());
 	}
 
+	// Intro-Routine
 	private void intro() {
 
 	}
@@ -247,6 +242,7 @@ public class worms : MonoBehaviour {
 		}
 	}
 
+	// initialisieren Warten-Status
 	private void setWarten() {
 		status = Status.Warten;
 		logStatus("Warten");
@@ -340,6 +336,7 @@ public class worms : MonoBehaviour {
 		//charaktere[(int)list[rand.Next(0, list.Count)]].GetComponent<Charakter>().playSpeech("idle");
 	}
 
+	// Ebenen, die waehrend des Warten-Zustandes zu sehen sind, werden ausgeblendet
 	private void hideWarteTexte(bool inklc) {
 		timerSprites[0].GetComponent<TextElement>().fade(-1.5f);
 		timerSprites[1].GetComponent<TextElement>().fade(-1.5f);
@@ -360,7 +357,7 @@ public class worms : MonoBehaviour {
 
 	}
 	
-	// zufälliges Redeintervall
+	// zufaelliges Redeintervall
 	public void setRandomWartezeit() {
 		randWaitSec = rand.Next(500, 1000) / 100;
 		letzterSprachZeitstempel = Time.time;
@@ -404,6 +401,7 @@ public class worms : MonoBehaviour {
 		}
 	}
 
+	// initialisieren Begin-Status (bzw. Erfolg)
 	private void setBegin() {
 		status = Status.Beginn;
 		logStatus("Erfolg");
@@ -434,7 +432,8 @@ public class worms : MonoBehaviour {
 		isFinalTextVorbei = true;
 		oscZeitstempel = Time.time;
 	}
-	
+
+	// Begin-Routine
 	private void begin() {
 		if(!isTalking) {
 			this.gameObject.GetComponents<AudioSource>()[0].Play();
@@ -447,6 +446,7 @@ public class worms : MonoBehaviour {
 		}
 	}
 
+	// initialisieren Abbruch-Status (bzw. Timeout)
 	private void setAbbruch() {
 		status = Status.Abbruch;
 		logStatus("Timeout");
@@ -460,6 +460,7 @@ public class worms : MonoBehaviour {
 		StartCoroutine(auswurfQueue(anzPersonen));
 	}
 
+	// Abbruch-Routine
 	private void abbruch() {
 		checkZeitLetzteOscMessage(4.0f);
 	}
@@ -472,7 +473,7 @@ public class worms : MonoBehaviour {
 		pl.renderer.material.color = color;
 	}
 
-	// aktualisiere Bewegung des Charakters
+	// aktualisiere Bewegung des Charakters (wird von oscHandler aufgerufen)
 	public void handleFacelist(int id, int xpos, int mfactor) {
 		oscZeitstempel = Time.time;
 
@@ -487,9 +488,11 @@ public class worms : MonoBehaviour {
 		}
 	}
 
-	// neues Gesicht wurde erkannt
+	// neues Gesicht wurde erkannt (wird von oscHandler aufgerufen)
 	public void triggerPersonIn(int id) {
 		oscZeitstempel = Time.time;
+
+		logStatus("PersonIn");
 
 		if(!(status == Status.Idle || 
 		     status == Status.Warten ||
@@ -552,9 +555,11 @@ public class worms : MonoBehaviour {
 		}
 	}
 
-	// Gesicht wird nicht mehr erkannt
+	// Gesicht wird nicht mehr erkannt (wird von oscHandler aufgerufen)
 	public void triggerPersonOut(int id) {
 		oscZeitstempel = Time.time;
+
+		logStatus("PersonOut");
 
 		foreach(GameObject charakter in charaktere) {
 			if(charakter.GetComponent<Charakter>().getFaceID() == id) {

@@ -1,0 +1,469 @@
+Initialize engine version: 4.3.2f1 (0517a5ae8669)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 9.0c [aticfx32.dll 8.17.10.1247]
+    Renderer: AMD Radeon HD 7800 Series
+    Vendor:   ATI
+    VRAM:     2030 MB (via DXGI)
+    Caps:     Shader=30 DepthRT=1 NativeDepth=1 NativeShadow=1 DF16=1 INTZ=1 RAWZ=0 NULL=1 RESZ=1 SlowINTZ=1
+Begin MonoManager ReloadAssembly
+Platform assembly: C:\Users\Gnomenalm\Documents\lutherprototype\builds\Unity\worms_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading C:\Users\Gnomenalm\Documents\lutherprototype\builds\Unity\worms_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: C:\Users\Gnomenalm\Documents\lutherprototype\builds\Unity\worms_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading C:\Users\Gnomenalm\Documents\lutherprototype\builds\Unity\worms_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+- Completed reload, in  0.410 seconds
+<RI> Initializing input.
+<RI> Input initialized.
+desktop: 1920x1080 60Hz; virtual: 3200x1080 at -1280,0
+Platform assembly: C:\Users\Gnomenalm\Documents\lutherprototype\builds\Unity\worms_Data\Managed\System.dll (this message is harmless)
+connected
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+Platform assembly: C:\Users\Gnomenalm\Documents\lutherprototype\builds\Unity\worms_Data\Managed\System.Configuration.dll (this message is harmless)
+Platform assembly: C:\Users\Gnomenalm\Documents\lutherprototype\builds\Unity\worms_Data\Managed\System.Xml.dll (this message is harmless)
+61 sec
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+HandleD3DDeviceLost
+  HandleD3DDeviceLost: needs reset, doing it
+FullResetD3DDevice
+ResetD3DDevice
+dev->Reset
+D3Dwindow device not lost anymore
+deleteface id0
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id1
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+deleteface id1
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id2
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+deleteface id2
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id4
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id5
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id6
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+COM3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+9600
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+System.IO.IOException: The port `COM3' does not exist.
+  at System.IO.Ports.WinSerialStream.ReportIOError (System.String optional_arg) [0x00000] in <filename unknown>:0 
+  at System.IO.Ports.WinSerialStream..ctor (System.String port_name, Int32 baud_rate, Int32 data_bits, Parity parity, StopBits sb, Boolean dtr_enable, Boolean rts_enable, Handshake hs, Int32 read_timeout, Int32 write_timeout, Int32 read_buffer_size, Int32 write_buffer_size) [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.WinSerialStream:.ctor (string,int,int,System.IO.Ports.Parity,System.IO.Ports.StopBits,bool,bool,System.IO.Ports.Handshake,int,int,int,int)
+  at System.IO.Ports.SerialPort.Open () [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.SerialPort:Open ()
+  at worms.triggerDrucker () [0x00000] in <filename unknown>:0 
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+COM3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+9600
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+System.IO.IOException: The port `COM3' does not exist.
+  at System.IO.Ports.WinSerialStream.ReportIOError (System.String optional_arg) [0x00000] in <filename unknown>:0 
+  at System.IO.Ports.WinSerialStream..ctor (System.String port_name, Int32 baud_rate, Int32 data_bits, Parity parity, StopBits sb, Boolean dtr_enable, Boolean rts_enable, Handshake hs, Int32 read_timeout, Int32 write_timeout, Int32 read_buffer_size, Int32 write_buffer_size) [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.WinSerialStream:.ctor (string,int,int,System.IO.Ports.Parity,System.IO.Ports.StopBits,bool,bool,System.IO.Ports.Handshake,int,int,int,int)
+  at System.IO.Ports.SerialPort.Open () [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.SerialPort:Open ()
+  at worms.triggerDrucker () [0x00000] in <filename unknown>:0 
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+COM3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+9600
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+System.IO.IOException: The port `COM3' does not exist.
+  at System.IO.Ports.WinSerialStream.ReportIOError (System.String optional_arg) [0x00000] in <filename unknown>:0 
+  at System.IO.Ports.WinSerialStream..ctor (System.String port_name, Int32 baud_rate, Int32 data_bits, Parity parity, StopBits sb, Boolean dtr_enable, Boolean rts_enable, Handshake hs, Int32 read_timeout, Int32 write_timeout, Int32 read_buffer_size, Int32 write_buffer_size) [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.WinSerialStream:.ctor (string,int,int,System.IO.Ports.Parity,System.IO.Ports.StopBits,bool,bool,System.IO.Ports.Handshake,int,int,int,int)
+  at System.IO.Ports.SerialPort.Open () [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.SerialPort:Open ()
+  at worms.triggerDrucker () [0x00000] in <filename unknown>:0 
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+COM3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+9600
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+System.IO.IOException: The port `COM3' does not exist.
+  at System.IO.Ports.WinSerialStream.ReportIOError (System.String optional_arg) [0x00000] in <filename unknown>:0 
+  at System.IO.Ports.WinSerialStream..ctor (System.String port_name, Int32 baud_rate, Int32 data_bits, Parity parity, StopBits sb, Boolean dtr_enable, Boolean rts_enable, Handshake hs, Int32 read_timeout, Int32 write_timeout, Int32 read_buffer_size, Int32 write_buffer_size) [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.WinSerialStream:.ctor (string,int,int,System.IO.Ports.Parity,System.IO.Ports.StopBits,bool,bool,System.IO.Ports.Handshake,int,int,int,int)
+  at System.IO.Ports.SerialPort.Open () [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.SerialPort:Open ()
+  at worms.triggerDrucker () [0x00000] in <filename unknown>:0 
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+deleteface id4
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+deleteface id3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+deleteface id6
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+deleteface id5
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id7
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id8
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id9
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id10
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+deleteface id9
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+deleteface id8
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+deleteface id7
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+deleteface id10
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id11
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+deleteface id11
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+COM3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+9600
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+System.IO.IOException: The port `COM3' does not exist.
+  at System.IO.Ports.WinSerialStream.ReportIOError (System.String optional_arg) [0x00000] in <filename unknown>:0 
+  at System.IO.Ports.WinSerialStream..ctor (System.String port_name, Int32 baud_rate, Int32 data_bits, Parity parity, StopBits sb, Boolean dtr_enable, Boolean rts_enable, Handshake hs, Int32 read_timeout, Int32 write_timeout, Int32 read_buffer_size, Int32 write_buffer_size) [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.WinSerialStream:.ctor (string,int,int,System.IO.Ports.Parity,System.IO.Ports.StopBits,bool,bool,System.IO.Ports.Handshake,int,int,int,int)
+  at System.IO.Ports.SerialPort.Open () [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.SerialPort:Open ()
+  at worms.triggerDrucker () [0x00000] in <filename unknown>:0 
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+COM3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+9600
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+System.IO.IOException: The port `COM3' does not exist.
+  at System.IO.Ports.WinSerialStream.ReportIOError (System.String optional_arg) [0x00000] in <filename unknown>:0 
+  at System.IO.Ports.WinSerialStream..ctor (System.String port_name, Int32 baud_rate, Int32 data_bits, Parity parity, StopBits sb, Boolean dtr_enable, Boolean rts_enable, Handshake hs, Int32 read_timeout, Int32 write_timeout, Int32 read_buffer_size, Int32 write_buffer_size) [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.WinSerialStream:.ctor (string,int,int,System.IO.Ports.Parity,System.IO.Ports.StopBits,bool,bool,System.IO.Ports.Handshake,int,int,int,int)
+  at System.IO.Ports.SerialPort.Open () [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.SerialPort:Open ()
+  at worms.triggerDrucker () [0x00000] in <filename unknown>:0 
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+COM3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+9600
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+System.IO.IOException: The port `COM3' does not exist.
+  at System.IO.Ports.WinSerialStream.ReportIOError (System.String optional_arg) [0x00000] in <filename unknown>:0 
+  at System.IO.Ports.WinSerialStream..ctor (System.String port_name, Int32 baud_rate, Int32 data_bits, Parity parity, StopBits sb, Boolean dtr_enable, Boolean rts_enable, Handshake hs, Int32 read_timeout, Int32 write_timeout, Int32 read_buffer_size, Int32 write_buffer_size) [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.WinSerialStream:.ctor (string,int,int,System.IO.Ports.Parity,System.IO.Ports.StopBits,bool,bool,System.IO.Ports.Handshake,int,int,int,int)
+  at System.IO.Ports.SerialPort.Open () [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.SerialPort:Open ()
+  at worms.triggerDrucker () [0x00000] in <filename unknown>:0 
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+COM3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+9600
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+System.IO.IOException: The port `COM3' does not exist.
+  at System.IO.Ports.WinSerialStream.ReportIOError (System.String optional_arg) [0x00000] in <filename unknown>:0 
+  at System.IO.Ports.WinSerialStream..ctor (System.String port_name, Int32 baud_rate, Int32 data_bits, Parity parity, StopBits sb, Boolean dtr_enable, Boolean rts_enable, Handshake hs, Int32 read_timeout, Int32 write_timeout, Int32 read_buffer_size, Int32 write_buffer_size) [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.WinSerialStream:.ctor (string,int,int,System.IO.Ports.Parity,System.IO.Ports.StopBits,bool,bool,System.IO.Ports.Handshake,int,int,int,int)
+  at System.IO.Ports.SerialPort.Open () [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.SerialPort:Open ()
+  at worms.triggerDrucker () [0x00000] in <filename unknown>:0 
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+COM3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+9600
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+System.IO.IOException: The port `COM3' does not exist.
+  at System.IO.Ports.WinSerialStream.ReportIOError (System.String optional_arg) [0x00000] in <filename unknown>:0 
+  at System.IO.Ports.WinSerialStream..ctor (System.String port_name, Int32 baud_rate, Int32 data_bits, Parity parity, StopBits sb, Boolean dtr_enable, Boolean rts_enable, Handshake hs, Int32 read_timeout, Int32 write_timeout, Int32 read_buffer_size, Int32 write_buffer_size) [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.WinSerialStream:.ctor (string,int,int,System.IO.Ports.Parity,System.IO.Ports.StopBits,bool,bool,System.IO.Ports.Handshake,int,int,int,int)
+  at System.IO.Ports.SerialPort.Open () [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.SerialPort:Open ()
+  at worms.triggerDrucker () [0x00000] in <filename unknown>:0 
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+COM3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+9600
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+System.IO.IOException: The port `COM3' does not exist.
+  at System.IO.Ports.WinSerialStream.ReportIOError (System.String optional_arg) [0x00000] in <filename unknown>:0 
+  at System.IO.Ports.WinSerialStream..ctor (System.String port_name, Int32 baud_rate, Int32 data_bits, Parity parity, StopBits sb, Boolean dtr_enable, Boolean rts_enable, Handshake hs, Int32 read_timeout, Int32 write_timeout, Int32 read_buffer_size, Int32 write_buffer_size) [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.WinSerialStream:.ctor (string,int,int,System.IO.Ports.Parity,System.IO.Ports.StopBits,bool,bool,System.IO.Ports.Handshake,int,int,int,int)
+  at System.IO.Ports.SerialPort.Open () [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.SerialPort:Open ()
+  at worms.triggerDrucker () [0x00000] in <filename unknown>:0 
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+COM3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+9600
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+System.IO.IOException: The port `COM3' does not exist.
+  at System.IO.Ports.WinSerialStream.ReportIOError (System.String optional_arg) [0x00000] in <filename unknown>:0 
+  at System.IO.Ports.WinSerialStream..ctor (System.String port_name, Int32 baud_rate, Int32 data_bits, Parity parity, StopBits sb, Boolean dtr_enable, Boolean rts_enable, Handshake hs, Int32 read_timeout, Int32 write_timeout, Int32 read_buffer_size, Int32 write_buffer_size) [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.WinSerialStream:.ctor (string,int,int,System.IO.Ports.Parity,System.IO.Ports.StopBits,bool,bool,System.IO.Ports.Handshake,int,int,int,int)
+  at System.IO.Ports.SerialPort.Open () [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.SerialPort:Open ()
+  at worms.triggerDrucker () [0x00000] in <filename unknown>:0 
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+COM3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+9600
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+System.IO.IOException: The port `COM3' does not exist.
+  at System.IO.Ports.WinSerialStream.ReportIOError (System.String optional_arg) [0x00000] in <filename unknown>:0 
+  at System.IO.Ports.WinSerialStream..ctor (System.String port_name, Int32 baud_rate, Int32 data_bits, Parity parity, StopBits sb, Boolean dtr_enable, Boolean rts_enable, Handshake hs, Int32 read_timeout, Int32 write_timeout, Int32 read_buffer_size, Int32 write_buffer_size) [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.WinSerialStream:.ctor (string,int,int,System.IO.Ports.Parity,System.IO.Ports.StopBits,bool,bool,System.IO.Ports.Handshake,int,int,int,int)
+  at System.IO.Ports.SerialPort.Open () [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.SerialPort:Open ()
+  at worms.triggerDrucker () [0x00000] in <filename unknown>:0 
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id12
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+deleteface id12
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id13
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id14
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id15
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+z1
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+z2
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id16
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+deleteface id14
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id17
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+deleteface id17
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+deleteface id15
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+newface id18
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+COM3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+9600
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+System.IO.IOException: The port `COM3' does not exist.
+  at System.IO.Ports.WinSerialStream.ReportIOError (System.String optional_arg) [0x00000] in <filename unknown>:0 
+  at System.IO.Ports.WinSerialStream..ctor (System.String port_name, Int32 baud_rate, Int32 data_bits, Parity parity, StopBits sb, Boolean dtr_enable, Boolean rts_enable, Handshake hs, Int32 read_timeout, Int32 write_timeout, Int32 read_buffer_size, Int32 write_buffer_size) [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.WinSerialStream:.ctor (string,int,int,System.IO.Ports.Parity,System.IO.Ports.StopBits,bool,bool,System.IO.Ports.Handshake,int,int,int,int)
+  at System.IO.Ports.SerialPort.Open () [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.SerialPort:Open ()
+  at worms.triggerDrucker () [0x00000] in <filename unknown>:0 
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+COM3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+9600
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+System.IO.IOException: The port `COM3' does not exist.
+  at System.IO.Ports.WinSerialStream.ReportIOError (System.String optional_arg) [0x00000] in <filename unknown>:0 
+  at System.IO.Ports.WinSerialStream..ctor (System.String port_name, Int32 baud_rate, Int32 data_bits, Parity parity, StopBits sb, Boolean dtr_enable, Boolean rts_enable, Handshake hs, Int32 read_timeout, Int32 write_timeout, Int32 read_buffer_size, Int32 write_buffer_size) [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.WinSerialStream:.ctor (string,int,int,System.IO.Ports.Parity,System.IO.Ports.StopBits,bool,bool,System.IO.Ports.Handshake,int,int,int,int)
+  at System.IO.Ports.SerialPort.Open () [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.SerialPort:Open ()
+  at worms.triggerDrucker () [0x00000] in <filename unknown>:0 
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+COM3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+9600
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+System.IO.IOException: The port `COM3' does not exist.
+  at System.IO.Ports.WinSerialStream.ReportIOError (System.String optional_arg) [0x00000] in <filename unknown>:0 
+  at System.IO.Ports.WinSerialStream..ctor (System.String port_name, Int32 baud_rate, Int32 data_bits, Parity parity, StopBits sb, Boolean dtr_enable, Boolean rts_enable, Handshake hs, Int32 read_timeout, Int32 write_timeout, Int32 read_buffer_size, Int32 write_buffer_size) [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.WinSerialStream:.ctor (string,int,int,System.IO.Ports.Parity,System.IO.Ports.StopBits,bool,bool,System.IO.Ports.Handshake,int,int,int,int)
+  at System.IO.Ports.SerialPort.Open () [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.SerialPort:Open ()
+  at worms.triggerDrucker () [0x00000] in <filename unknown>:0 
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+COM3
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+9600
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+System.IO.IOException: The port `COM3' does not exist.
+  at System.IO.Ports.WinSerialStream.ReportIOError (System.String optional_arg) [0x00000] in <filename unknown>:0 
+  at System.IO.Ports.WinSerialStream..ctor (System.String port_name, Int32 baud_rate, Int32 data_bits, Parity parity, StopBits sb, Boolean dtr_enable, Boolean rts_enable, Handshake hs, Int32 read_timeout, Int32 write_timeout, Int32 read_buffer_size, Int32 write_buffer_size) [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.WinSerialStream:.ctor (string,int,int,System.IO.Ports.Parity,System.IO.Ports.StopBits,bool,bool,System.IO.Ports.Handshake,int,int,int,int)
+  at System.IO.Ports.SerialPort.Open () [0x00000] in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.Ports.SerialPort:Open ()
+  at worms.triggerDrucker () [0x00000] in <filename unknown>:0 
+ 
+(Filename: C:/BuildAgent/work/d3d49558e4d408f4/artifacts/StandalonePlayerGenerated/UnityEngineDebug.cpp Line: 53)
+
+Ein Blockierungsvorgang wurde durch einen Aufruf von WSACancelBlockingCall unterbrochen.
+
+null packet

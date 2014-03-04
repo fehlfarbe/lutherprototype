@@ -6,25 +6,21 @@ using System;
 
 public class Charakter : MonoBehaviour {
 
-	public AudioClip[] audioclips;
-	private Dictionary<string, AudioSource> speech;
+	public AudioClip[] audioclips;					// Sprachsamples
+	private Dictionary<string, AudioSource> speech;	// Sprachsamples mit Tags gemapt
 
-	public GameObject pl_arrow;
-	public GameObject pl_text;
+	public GameObject pl_arrow;	// geschweifte Klammer
+	public GameObject pl_text;	// Schriftzug des Namens
 
-	private Vector3 pl_text_start_pos;
-	public float pl_arrow_Xoffset;
+	private Vector3 pl_text_start_pos;	// Startposition des Schriftzuges
+	public float pl_arrow_Xoffset;		// Verschiebung vom Nullpunkt
 
-	private int faceID;
+	private int faceID;		// Zuweisung des Gesichtes (durch oscHandler gegeben)
 
-	public bool fromLeft;
+	public Vector2 range = new Vector2(-5.0f, 5.0f);	// Bewegungsbereich
+	public float maxTextX = -3.5f;	// maximale Bewegung des Textes, je nach Orientierung der Klammer
 
-	private Vector2 position;
-
-	public float initialPos = 0.0f;
-	public Vector2 range = new Vector2(-5.0f, 5.0f);
-	public float maxTextX = -3.5f;
-
+	// fuer Animationen: Pruefvariablen und Animationsparameter
 	public bool isFading = false;
 	private bool isLooking = false;
 	private bool isTextMoving = false;
@@ -33,13 +29,12 @@ public class Charakter : MonoBehaviour {
 	private float lookValue;
 	private float textMoveValue;
 	private float textFadeValue;
-
 	private int motionFactor = 0;
 	private float transformFactor = 0.1f;
 	private bool isReseting = false;
 	private float xpos;
 
-	private string keyPlaying = "";
+	private string keyPlaying = "";	// Key fuer Sprachsample-Map
 
 	// Use this for initialization
 	void Start () {
@@ -85,23 +80,6 @@ public class Charakter : MonoBehaviour {
 		else if (Input.GetKeyUp(KeyCode.DownArrow)) {
 			transformFactor -= 0.002f;
 		}
-
-		/*if(isFading) {
-			Color color = this.renderer.material.color;
-			float incr = fadeValue * Time.deltaTime;
-			if(color.a + incr > 1.0f) 
-				color.a = 1.0f;
-			else if(color.a + incr < 0.0f)
-				color.a = 0.0f;
-			else 
-				color.a += incr;
-			this.renderer.material.color = color;
-			if(color.a == 1.0f || color.a == 0.0f) {
-				isFading = false;
-			}
-			if(color.a == 0.0f)
-				this.transform.position = new Vector3(this.transform.position.x, 0, this.transform.position.z);
-		}*/
 		// Ein-/Ausblend-Animation
 		if(isFading) {
 			float incr = fadeValue * Time.deltaTime;
@@ -153,38 +131,6 @@ public class Charakter : MonoBehaviour {
 			float incr = textMoveValue * Time.deltaTime;
 
 			pl_text.transform.position = Vector3.MoveTowards(pl_text.transform.position, pl_arrow.transform.position + new Vector3(pl_arrow_Xoffset,0,0), incr);
-
-//			float x = pl_text.transform.position.x;
-//			float blend = x - incr;
-//			if(blend > 0.0f) {
-//				x = 0.0f;
-//				pl_text.transform.position = new Vector3(x, pl_text.transform.position.y, pl_text.transform.position.z);
-//			}
-//			else if(blend < maxTextX) {
-//				x = maxTextX;
-//				pl_text.transform.position = new Vector3(x, pl_text.transform.position.y, pl_text.transform.position.z);
-//			}
-//			else 
-//				pl_text.transform.Translate(-incr, 0, 0, Space.World);			
-			if(pl_text.transform.position.x == pl_arrow.transform.position.x + pl_arrow_Xoffset) {
-				//isTextMoving = false;
-			}
-			/*float incr = textMoveValue * Time.deltaTime;
-			float x = pl_text.transform.position.x;
-			float blend = x - incr;
-			if(blend > 0.0f) {
-				x = 0.0f;
-				pl_text.transform.position = new Vector3(x, pl_text.transform.position.y, pl_text.transform.position.z);
-			}
-			else if(blend < maxTextX) {
-				x = maxTextX;
-				pl_text.transform.position = new Vector3(x, pl_text.transform.position.y, pl_text.transform.position.z);
-			}
-			else 
-				pl_text.transform.Translate(-incr, 0, 0, Space.World);
-			if(blend == maxTextX || blend == 0.0f) {
-				isTextMoving = false;
-			}*/
 		}
 		// Bewegung anhand der User
 		if(faceID != -1 || isReseting) {
@@ -211,7 +157,7 @@ public class Charakter : MonoBehaviour {
 		}
 	}
 
-	// Spiele zufälligen Sound aus gegebener Kategorie ab
+	// Spiele zufaelligen Sound aus gegebener Kategorie ab
 	public void playSpeech(string key) {
 		int i = 1;
 		bool listEnd = false;
@@ -246,6 +192,7 @@ public class Charakter : MonoBehaviour {
 		}
 	}
 
+	// Blinkanimation
 	private IEnumerator blinkText(int count, float speed) {
 		for (int i = 0; i < count; i++) {
 			pl_text.renderer.material.SetFloat("_Blend", 1.0f);
@@ -281,6 +228,7 @@ public class Charakter : MonoBehaviour {
 		isTextFading = true;
 	}
 
+	// Textblinken bei Aktivierung Charakter
 	public void startBlink(int count, float speed) {
 		StartCoroutine(blinkText(count, speed));
 		isTextFading = false;
@@ -304,8 +252,6 @@ public class Charakter : MonoBehaviour {
 
 	public void setXPos(float f) {
 		xpos = f;
-		//Vector3 newpos = new Vector3(pl_arrow.transform.position.x, -xpos * 7.2f + 3.1f, pl_arrow.transform.position.z);
-		//pl_arrow.transform.position = Vector3.Lerp(pl_arrow.transform.position, newpos, Time.deltaTime);
 	}
 
 	// versetze Charakter in Ausgangszustand

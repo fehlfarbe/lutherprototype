@@ -3,12 +3,16 @@ using System.Collections;
 
 public class Sanduhr : MonoBehaviour {
 
-	public float startY;
-	public float endY;
+	public float startY;	// fuer Ein-/Ausfahren der Sanduhr
+	public float endY;		// fuer Ein-/Ausfahren der Sanduhr
+
+	// fuer Animationen: Pruefvariablen und Animationsparameter
 	private bool isMoving = false;
 	private bool isRotating = false;
 	private float moveValue;
 	private float rotValue;
+
+	// Sand-Sound
 	public AudioSource sotSound;
 	public AudioSource sandSound;
 	private float volumeAdd = 0.0f;
@@ -85,11 +89,6 @@ public class Sanduhr : MonoBehaviour {
 		if (!t) {
 			this.transform.rotation = startQuat;
 		}
-		//Vector3.RotateTowards(this.transform.rotation, this.transform.rotation, 30f, 30f);
-		//this.transform.Rotate(Vector3.forward, 30f);
-		//yield return new WaitForSeconds(0.25f);
-		//this.transform.Rotate(Vector3.forward, -30f);
-		//Vector3.RotateTowards(this.transform.rotation, this.transform.rotation, - 60f, 30f, 30f);
 	}
 
 	public void stopSounds() {
